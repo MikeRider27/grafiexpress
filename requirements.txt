@@ -1,4 +1,4 @@
-Django==1.8.14
+Django==2.2.28
 django-autocomplete-light==3.1.8
 django-crontab==0.7.1
 django-flat-theme==1.1.3
