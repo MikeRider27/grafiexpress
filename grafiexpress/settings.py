@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': 'grafiexpress',                      
         'USER': 'postgres',
         'PASSWORD': '123',
-        'HOST': '127.0.0.1'
+        'HOST': '192.168.100.14'
     }
 }
 LOGIN_URL = '/admin/login'

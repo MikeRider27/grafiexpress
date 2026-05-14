@@ -1,0 +1,38 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app          # Monta el código local para desarrollo (opcional)
+      - ./static_volume:/app/static   # Persistir archivos estáticos
+    environment:
+      - DJANGO_SETTINGS_MODULE=grafiexpress.settings
+      # Si usas SQLite, asegúrate de que el archivo db.sqlite3 esté en un volumen
+      - PYTHONPATH=/app
+    # Si deseas usar PostgreSQL, descomenta las líneas de abajo y comenta las de SQLite
+    # depends_on:
+    #   - db
+    # environment:
+    #   - DB_ENGINE=django.db.backends.postgresql
+    #   - DB_NAME=grafiexpress
+    #   - DB_USER=postgres
+    #   - DB_PASSWORD=postgres
+    #   - DB_HOST=db
+    #   - DB_PORT=5432
+
+  # Servicio opcional de PostgreSQL (comentado por defecto)
+  # db:
+  #   image: postgres:9.6   # versión compatible con psycopg2 2.6.2
+  #   environment:
+  #     POSTGRES_DB: grafiexpress
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  static_volume:
+  # postgres_data:

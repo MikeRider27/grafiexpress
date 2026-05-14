@@ -84,7 +84,7 @@ class DetalleRetiroForm(forms.ModelForm):
         cleaned_data = super(DetalleRetiroForm, self).clean()
         material = cleaned_data.get("material")
         orden_de_trabajo = cleaned_data.get("orden_de_trabajo")
-        print orden_de_trabajo
+        print (orden_de_trabajo)
 
         if material.retiro_ot == True and orden_de_trabajo == None:
             self.add_error('material', "Material requiere orden de trabajo para el retiro")

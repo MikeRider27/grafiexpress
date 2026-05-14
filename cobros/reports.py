@@ -7,7 +7,7 @@ import xlwt
 from django.http import HttpResponse
 from django.utils.encoding import force_text
 from django.utils.text import Truncator
-from geraldo.generators.pdf import PDFGenerator
+# from geraldo.generators.pdf import PDFGenerator
 from reportlab.lib.pagesizes import A4, A6
 from reportlab.pdfgen import canvas
 

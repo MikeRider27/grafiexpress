@@ -47,10 +47,10 @@ class BridgeRequestHandler(SocketServer.BaseRequestHandler):
                 h.put(k,v)
                 
             #h.put(JRParameter.REPORT_LOCALE, java.util.Locale(""))
-            print params
-            print params["report"]
-            print h
-            print conn
+            print (params)
+            print (params["report"])
+            print (h)
+            print (conn)
             report = JasperFillManager.fillReport(params["report"], h, conn)
             output = java.io.ByteArrayOutputStream()
             JasperExportManager.exportReportToPdfStream(report, output)
