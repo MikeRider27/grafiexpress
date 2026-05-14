@@ -84,7 +84,7 @@ class OrdenDeTrabajoForm(forms.ModelForm):
         else:
             automatico = cleaned_data.get("automatico")
             numero = cleaned_data.get("numero")
-            print numero
+            print(numero)
 
             if automatico==False:
                 if numero=='' or numero==None:

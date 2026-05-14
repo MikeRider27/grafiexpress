@@ -17,7 +17,7 @@ from num2words import num2words
 def reporte_orden_de_compra(request, orden_de_compra_id):
     response = HttpResponse(content_type='application/pdf')
     pdf_name = "orden_de_compra_"+ datetime.now().strftime('%Y-%m-%d|%H:%M:%S') + '.pdf' 
-    print pdf_name
+    print (pdf_name)
     response['Content-Disposition'] = 'attachment; filename=%s' % pdf_name.replace(" ", "_")
     buff = BytesIO()
     doc = SimpleDocTemplate(buff,
@@ -113,7 +113,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     detalles = PapelOrdenDeCompra.objects.filter(orden_de_compra_id = orden_de_compra_id)
 
     for detalle in detalles:
-		datos = datos + [(
+        datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
 							detalle.descripcion.__unicode__(), 
 							separador_de_miles(detalle.cantidad), 

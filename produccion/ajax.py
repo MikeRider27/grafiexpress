@@ -72,7 +72,7 @@ def get_detalleordendetrabajo(request):
 
 def get_papelcosto(request):
     papelcosto_id = (request.GET['id']).replace(" ","")
-    print "ajax papelcosto_id (%s)" % papelcosto_id
+    print ("ajax papelcosto_id (%s)" % papelcosto_id)
 
     result_set = []
 
@@ -94,7 +94,7 @@ def get_papelcosto(request):
 
 def get_preprensacosto(request):
     preprensacosto_id = (request.GET['id']).replace(" ","")
-    print "ajax preprensacosto_id (%s)" % preprensacosto_id
+    print ("ajax preprensacosto_id (%s)" % preprensacosto_id)
 
     result_set = []
 
@@ -116,7 +116,7 @@ def get_preprensacosto(request):
 
 def get_troquelcosto(request):
     troquelcosto_id = (request.GET['id']).replace(" ","")
-    print "ajax troquelcosto_id (%s)" % troquelcosto_id
+    print ("ajax troquelcosto_id (%s)" % troquelcosto_id)
 
     result_set = []
 
@@ -138,7 +138,7 @@ def get_troquelcosto(request):
 
 def get_posprensaserviciocosto(request):
     posprensaserviciocosto_id = (request.GET['id']).replace(" ","")
-    print "ajax posprensaserviciocosto_id (%s)" % posprensaserviciocosto_id
+    print ("ajax posprensaserviciocosto_id (%s)" % posprensaserviciocosto_id)
 
     result_set = []
 
@@ -160,7 +160,7 @@ def get_posprensaserviciocosto(request):
 
 def get_posprensamaterialcosto(request):
     posprensamaterialcosto_id = (request.GET['id']).replace(" ","")
-    print "ajax posprensamaterialcosto_id (%s)" % posprensamaterialcosto_id
+    print ("ajax posprensamaterialcosto_id (%s)" % posprensamaterialcosto_id)
 
     result_set = []
 
@@ -182,7 +182,7 @@ def get_posprensamaterialcosto(request):
 
 def get_posprensaotroserviciocosto(request):
     posprensaotroserviciocosto_id = (request.GET['id']).replace(" ","")
-    print "ajax posprensaotroserviciocosto_id (%s)" % posprensaotroserviciocosto_id
+    print ("ajax posprensaotroserviciocosto_id (%s)" % posprensaotroserviciocosto_id)
 
     result_set = []
 
@@ -204,7 +204,7 @@ def get_posprensaotroserviciocosto(request):
 
 def get_datosdebolsacosto(request):
     datosdebolsacosto_id = (request.GET['id']).replace(" ","")
-    print "ajax datosdebolsacosto_id (%s)" % datosdebolsacosto_id
+    print ("ajax datosdebolsacosto_id (%s)" % datosdebolsacosto_id)
 
     result_set = []
 
@@ -226,7 +226,7 @@ def get_datosdebolsacosto(request):
 
 def get_revistacosto(request):
     revistacosto_id = (request.GET['id']).replace(" ","")
-    print "ajax revistacosto_id (%s)" % revistacosto_id
+    print ("ajax revistacosto_id (%s)" % revistacosto_id)
 
     result_set = []
 
@@ -248,7 +248,7 @@ def get_revistacosto(request):
 
 def get_compuestocosto(request):
     compuestocosto_id = (request.GET['id']).replace(" ","")
-    print "ajax compuestocosto_id (%s)" % compuestocosto_id
+    print ("ajax compuestocosto_id (%s)" % compuestocosto_id)
 
     result_set = []
 
@@ -270,7 +270,7 @@ def get_compuestocosto(request):
 
 def get_plastificadocosto(request):
     plastificadocosto_id = (request.GET['id']).replace(" ","")
-    print "ajax plastificadocosto_id (%s)" % plastificadocosto_id
+    print ("ajax plastificadocosto_id (%s)" % plastificadocosto_id)
 
     result_set = []
 
@@ -292,7 +292,7 @@ def get_plastificadocosto(request):
 
 def get_otrogastocosto(request):
     otrogastocosto_id = (request.GET['id']).replace(" ","")
-    print "ajax otrogastocosto_id (%s)" % otrogastocosto_id
+    print ("ajax otrogastocosto_id (%s)" % otrogastocosto_id)
 
     result_set = []
 
