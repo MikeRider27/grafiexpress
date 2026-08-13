@@ -2,37 +2,69 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "8002:8000"
     volumes:
-      - .:/app          # Monta el código local para desarrollo (opcional)
-      - ./static_volume:/app/static   # Persistir archivos estáticos
+      - .:/app
+      - ./static_volume:/app/staticfiles
+      - ./media:/app/media
+    env_file:
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=grafiexpress.settings
-      # Si usas SQLite, asegúrate de que el archivo db.sqlite3 esté en un volumen
       - PYTHONPATH=/app
-    # Si deseas usar PostgreSQL, descomenta las líneas de abajo y comenta las de SQLite
-    # depends_on:
-    #   - db
-    # environment:
-    #   - DB_ENGINE=django.db.backends.postgresql
-    #   - DB_NAME=grafiexpress
-    #   - DB_USER=postgres
-    #   - DB_PASSWORD=postgres
-    #   - DB_HOST=db
-    #   - DB_PORT=5432
+    restart: unless-stopped
+    # Si necesitas comunicarte con un servicio corriendo en el host (fuera de Docker)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  # Servicio opcional de PostgreSQL (comentado por defecto)
+    # --- Servicio de JasperReports (deshabilitado) --------------------------
+    # depends_on:
+    #   - jasper-report
+
+  # ---------------------------------------------------------------------------
+  # Servicio de JasperReports (socket en el puerto 5000) — DESHABILITADO
+  #
+  # No lo pudimos dejar funcionando tal cual estaba porque:
+  #   1. Referencia "Dockerfile.jasper", que no existe en el repo.
+  #   2. El comando apunta a "common/jasper/jasper_server.py", que tampoco
+  #      existe. El script real es "common/jasper/server.py".
+  #   3. Ese script no es Python normal: usa "import SocketServer" (Python 2)
+  #      e imports Java (`from java.util import Properties`), o sea que
+  #      necesita correr sobre Jython + un JDK, no sobre CPython 3.5 como el
+  #      resto del proyecto. Requiere su propia imagen base.
+  #   4. common/jasper/conector.py se conecta a 127.0.0.1:5000 hardcodeado.
+  #      Entre contenedores separados eso no funciona: hay que parametrizarlo
+  #      (ej. JASPER_HOST=jasper-report) para que apunte al hostname del
+  #      servicio en la red de Docker.
+  #
+  # Para reactivarlo: crear Dockerfile.jasper con Jython + el JDK necesario,
+  # corregir el nombre del script en "command", y parametrizar el host en
+  # conector.py.
+  # ---------------------------------------------------------------------------
+  # jasper-report:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.jasper
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - .:/app
+  #     - ./media:/app/media
+  #   command: python /app/common/jasper/server.py
+  #   restart: unless-stopped
+
+  # Servicio opcional de PostgreSQL (comentado por defecto; hoy la app apunta
+  # a un Postgres externo definido por las variables DB_* en .env)
   # db:
-  #   image: postgres:9.6   # versión compatible con psycopg2 2.6.2
+  #   image: postgres:9.6
   #   environment:
-  #     POSTGRES_DB: grafiexpress
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: ${DB_NAME:-grafiexpress}
+  #     POSTGRES_USER: ${DB_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
   #   volumes:
   #     - postgres_data:/var/lib/postgresql/data
   #   ports:
   #     - "5432:5432"
 
-volumes:
-  static_volume:
-  # postgres_data:
+# volumes:
+#   postgres_data:

@@ -118,7 +118,7 @@ def reporte_orden_de_trabajo(request, orden_de_trabajo_id):
 
         datos = [( ("#"+str(contador)+" Descripcion:"), Paragraph(detalle.descripcion, styles['Normal']),"Cantidad:", Paragraph(separador_de_miles(detalle.cantidad), styles['Normal']) )]
         datos = datos + [(
-            "Material:",  Paragraph(detalle.material.__unicode__(), styles['Normal']),
+            "Material:",  Paragraph(str(detalle.material), styles['Normal']),
             "Dimensiones:", Paragraph(detalle.get_dimension(), styles['Normal']) 
         )]
 

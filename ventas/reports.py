@@ -290,6 +290,8 @@ def imprimir_venta_grafiexpress(request, pk):
 
 
 def pdf_factura(request, pk):
+    from decimal import Decimal
+    
     factura = Venta.objects.filter(pk=pk)
     factura = factura.get()
     remisiones = ""
@@ -304,20 +306,24 @@ def pdf_factura(request, pk):
     detalles2 = factura.detalledeventa2_set.all()
     detalles3 = factura.detalleventamateriales_set.all()
 
-    sub_0 = detalles1.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or 0
-    sub_5 = detalles1.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or 0
-    sub_10 = detalles1.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or 0
+    sub_0 = detalles1.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or Decimal('0')
+    sub_5 = detalles1.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or Decimal('0')
+    sub_10 = detalles1.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or Decimal('0')
 
-    sub_0 += detalles2.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or 0
-    sub_5 += detalles2.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or 0
-    sub_10 += detalles2.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or 0
+    sub_0 += detalles2.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or Decimal('0')
+    sub_5 += detalles2.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or Decimal('0')
+    sub_10 += detalles2.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or Decimal('0')
 
-    sub_0 += detalles3.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or 0
-    sub_5 += detalles3.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or 0
-    sub_10 += detalles3.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or 0
+    sub_0 += detalles3.filter(iva=0).aggregate(subtotal_0=Sum('subtotal'))['subtotal_0'] or Decimal('0')
+    sub_5 += detalles3.filter(iva=5).aggregate(subtotal_5=Sum('subtotal'))['subtotal_5'] or Decimal('0')
+    sub_10 += detalles3.filter(iva=10).aggregate(subtotal_10=Sum('subtotal'))['subtotal_10'] or Decimal('0')
 
-    total_5 = sub_5/21
-    total_10 = sub_10/11
+    # Convertir las divisiones a Decimal para mantener el tipo
+    total_5 = sub_5 / Decimal('21')
+    total_10 = sub_10 / Decimal('11')
+    
+    # Asegurar que total_iva sea Decimal
+    total_iva = total_5 + total_10
 
     reporte = "factura_triplicado.jasper"
     response = HttpResponse(content_type='application/pdf')
@@ -326,12 +332,12 @@ def pdf_factura(request, pk):
     response.write(reportes.get_report(reporte, {
         "id": str(pk),
         "remisiones": str(remisiones),
-        "sub_0": sub_0,
-        "sub_5": sub_5,
-        "sub_10": sub_10,
-        "total_5": total_5,
-        "total_10": total_10,
-        "total_iva": total_5 + total_10
+        "sub_0": float(sub_0) if sub_0 else 0,  # Convertir a float si es necesario
+        "sub_5": float(sub_5) if sub_5 else 0,
+        "sub_10": float(sub_10) if sub_10 else 0,
+        "total_5": float(total_5) if total_5 else 0,
+        "total_10": float(total_10) if total_10 else 0,
+        "total_iva": float(total_iva) if total_iva else 0
     }))
     return response
 

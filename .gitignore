@@ -6,3 +6,10 @@
 */*/*/*.pyc
 .svn/
 *.log
+
+# Variables de entorno / secretos locales (usar .env.example como plantilla)
+.env
+__pycache__/
+
+# Estáticos recolectados para el contenedor Docker (se regeneran con collectstatic)
+static_volume/

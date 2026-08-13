@@ -1,0 +1,24 @@
+.git/
+.gitignore
+.idea/
+
+# Bases de datos locales / backups (no deben ir dentro de la imagen)
+db.sqlite3
+db_bkp.sqlite3
+mibase.backup
+backups/
+releases/
+
+# Artefactos generados (se regeneran con collectstatic / migrate)
+staticfiles/
+static_volume/
+media/
+
+# Python
+__pycache__/
+*.pyc
+
+# Varios
+*.log
+readme.md
+ip_publica.txt

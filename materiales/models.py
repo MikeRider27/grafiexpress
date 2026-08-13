@@ -2,10 +2,12 @@
 
 from django.apps import apps
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from ventas.models import IVA, IVA_10
 
 
+@python_2_unicode_compatible
 class UnidadDeMedida(models.Model):
     class Meta:
         verbose_name = "unidad de medida"
@@ -14,10 +16,11 @@ class UnidadDeMedida(models.Model):
     nombre = models.CharField(max_length=100)
     simbolo = models.CharField(max_length=10, blank=True, null=True, verbose_name="Símbolo")
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return self.nombre
 
 
+@python_2_unicode_compatible
 class CategoriaDeMaterial(models.Model):
     class Meta:
         verbose_name = "categoría de materiales"
@@ -25,24 +28,27 @@ class CategoriaDeMaterial(models.Model):
 
     nombre = models.CharField(max_length=100)
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return self.nombre
 
 
+@python_2_unicode_compatible
 class Gramaje(models.Model):
     descripcion = models.CharField(max_length=10)
 
-    def __unicode__(self):
-        return unicode(self.descripcion)
+    def __str__(self):
+        return self.descripcion
 
 
+@python_2_unicode_compatible
 class Resma(models.Model):
     descripcion = models.CharField(max_length=10)
 
-    def __unicode__(self):
-        return unicode(self.descripcion)
+    def __str__(self):
+        return self.descripcion
 
 
+@python_2_unicode_compatible
 class Material(models.Model):
     class Meta:
         verbose_name_plural = "materiales"
@@ -61,9 +67,13 @@ class Material(models.Model):
 
     marca = models.CharField(max_length=100, null=True, blank=True)
 
-    def __unicode__(self):
-        return unicode(self.descripcion) + (' - ' + unicode(self.gramaje) if self.gramaje else '') + (
-        ' - ' + unicode(self.resma) if self.resma else '')
+    def __str__(self):
+        resultado = self.descripcion
+        if self.gramaje:
+            resultado += ' - ' + str(self.gramaje)
+        if self.resma:
+            resultado += ' - ' + str(self.resma)
+        return resultado
 
     def actualizar_stock(self):
         cantidad = 0

@@ -15,91 +15,123 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+# BASE_DIR es la ruta absoluta al directorio raíz del proyecto (donde está manage.py)
+# os.path.dirname() va subiendo niveles de carpeta
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+# ============================================================================
+# CONFIGURACIÓN RÁPIDA PARA DESARROLLO (NO APTA PARA PRODUCCIÓN)
+# ============================================================================
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1p@z$ky1ym)o+0-&nlwrg6$shj&#f@(l-q4t7kq&5ljh(ea$8r'
+# SECURITY WARNING: mantener la clave secreta en secreto en producción
+# Esta clave se usa para firmar sesiones, tokens CSRF, etc.
+# Se puede sobreescribir con la variable de entorno SECRET_KEY (ej. en .env);
+# si no está definida, se usa la clave que ya estaba hardcodeada acá para no
+# romper el despliegue actual.
+SECRET_KEY = os.environ.get('SECRET_KEY', '1p@z$ky1ym)o+0-&nlwrg6$shj&#f@(l-q4t7kq&5ljh(ea$8r')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY WARNING: no ejecutar con DEBUG activado en producción
+# DEBUG=True muestra errores detallados, útil en desarrollo pero peligroso en producción
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS: hosts permitidos para servir la app. Vacío solo funciona con DEBUG=True.
+# Se puede definir por entorno como lista separada por comas, ej: ALLOWED_HOSTS=grafiexpress.com,www.grafiexpress.com
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
 
 
-# Application definition
+# ============================================================================
+# APLICACIONES INSTALADAS
+# ============================================================================
 
 INSTALLED_APPS = (
-    'django_crontab',
-    'flat_responsive',
-    'flat',
-    'dal',
-    'dal_select2',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'smart_selects',
-    'sistema',
-    'funcionarios',
-    'clientes',
-    'materiales',
-    'maquinaria',
-    'produccion',
-    'proveedores',
-    'compras',
-    'ventas',
-    'empresas',
-    'ciudades',
-    'depositos',
-    'automoviles',
-    'bancos',
-    'cheques',
-    'cobros',
-    'pagos',
-    'comercial',
+    # Aplicaciones de terceros
+    'django_crontab',        # Permite programar tareas cron desde Django
+    'flat_responsive',       # Tema responsive para el admin
+    'flat',                  # Tema "flat" para el admin
+    'dal',                   # Django Autocomplete Light (para autocompletado)
+    'dal_select2',           # Integración de Select2 con DAL
+    'smart_selects',         # Campos dependientes (selects en cadena)
+    
+    # Aplicaciones nativas de Django
+    'django.contrib.admin',      # Panel de administración
+    'django.contrib.auth',       # Sistema de autenticación
+    'django.contrib.contenttypes',  # Para relaciones genéricas
+    'django.contrib.sessions',   # Manejo de sesiones
+    'django.contrib.messages',   # Sistema de mensajes flash
+    'django.contrib.staticfiles', # Manejo de archivos estáticos (CSS, JS)
+    'django.contrib.humanize',    # Filtros de template para humanizar números/fechas
+    
+    # Aplicaciones propias del proyecto (módulos de negocio)
+    'sistema',          # Configuración general del sistema
+    'funcionarios',     # Gestión de empleados
+    'clientes',         # Gestión de clientes
+    'materiales',       # Gestión de insumos/materias primas
+    'maquinaria',       # Gestión de equipos y máquinas
+    'produccion',       # Módulo de producción
+    'proveedores',      # Gestión de proveedores
+    'compras',          # Órdenes de compra
+    'ventas',           # Facturación y ventas
+    'empresas',         # Datos de la empresa
+    'ciudades',         # Catálogo de ciudades
+    'depositos',        # Gestión de almacenes/depósitos
+    'automoviles',      # Gestión de vehículos
+    'bancos',           # Entidades bancarias
+    'cheques',          # Gestión de cheques
+    'cobros',           # Gestión de cobranzas
+    'pagos',            # Gestión de pagos a proveedores
+    'comercial',        # Módulo comercial
 )
+
+
+# ============================================================================
+# MIDDLEWARE (interceptores de peticiones/respuestas)
+# ============================================================================
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',      # Manejo de sesiones
+    'django.middleware.common.CommonMiddleware',                # Varias utilidades
+    'django.middleware.csrf.CsrfViewMiddleware',                # Protección CSRF
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Asocia usuario a request
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',  # Protege sesiones autenticadas
+    'django.contrib.messages.middleware.MessageMiddleware',     # Mensajes flash
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',   # Prevención de clickjacking
+    'django.middleware.security.SecurityMiddleware',            # Mejoras de seguridad
 )
 
+# Archivo raíz de URLs del proyecto
 ROOT_URLCONF = 'grafiexpress.urls'
+
+
+# ============================================================================
+# CONFIGURACIÓN DE PLANTILLAS (TEMPLATES)
+# ============================================================================
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(os.path.join(BASE_DIR, 'templates'))],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(os.path.join(BASE_DIR, 'templates'))],  # Carpeta global de templates
+        'APP_DIRS': True,  # También busca templates dentro de cada app
         'OPTIONS': {
-            'context_processors': [
+            'context_processors': [  # Variables disponibles en todas las plantillas
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',  # request disponible
+                'django.contrib.auth.context_processors.auth',  # user disponible
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
+# Punto de entrada WSGI para servidores como Gunicorn o uWSGI
 WSGI_APPLICATION = 'grafiexpress.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# ============================================================================
+# BASE DE DATOS
+# ============================================================================
+
+# Configuración original comentada: usaba SQLite (archivo local)
 """
 DATABASES = {
     'default': {
@@ -108,75 +140,91 @@ DATABASES = {
     }
 }
 """
-password_bbdd = 'postgres'
 
+# Configuración actual: PostgreSQL. Cada valor se puede sobreescribir por
+# variable de entorno (ej. en .env); si no está definida se usa el valor que
+# ya estaba hardcodeado acá para no romper el despliegue actual.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'grafiexpress',                      
-        'USER': 'postgres',
-        'PASSWORD': '123',
-        'HOST': '192.168.100.14'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',  # Motor PostgreSQL
+        'NAME': os.environ.get('DB_NAME', 'grafiexpress2'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '123'),
+        'HOST': os.environ.get('DB_HOST', '192.168.11.220'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
+# URL para redirigir cuando se requiere autenticación
 LOGIN_URL = '/admin/login'
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'es-py'
+# ============================================================================
+# INTERNACIONALIZACIÓN Y LOCALIZACIÓN
+# ============================================================================
 
-TIME_ZONE = 'America/Asuncion'
+LANGUAGE_CODE = 'es-py'           # Español de Paraguay
+TIME_ZONE = 'America/Asuncion'    # Huso horario de Asunción
+USE_I18N = True                   # Activar internacionalización
+USE_L10N = True                   # Activar formato local (fechas, números)
+USE_TZ = True                     # Usar timezone-aware datetimes
+USE_THOUSAND_SEPARATOR = False    # No usar separador de miles
 
-USE_I18N = True
 
-USE_L10N = True
+# ============================================================================
+# ARCHIVOS ESTÁTICOS (CSS, JS, imágenes)
+# ============================================================================
 
-USE_TZ = True
-
-USE_THOUSAND_SEPARATOR = False
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-
-STATIC_URL = '/static/'
+STATIC_URL = '/static/'           # URL base para archivos estáticos
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-STATICFILES_DIRS = [os.path.join(os.path.join(BASE_DIR, 'static'))]
-STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, 'staticfiles'))
-MEDIA_ROOT = BASE_DIR+"/media/"
-MEDIA_URL = "/media/"
-FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler",
-                        "django.core.files.uploadhandler.TemporaryFileUploadHandler")
+STATICFILES_DIRS = [os.path.join(os.path.join(BASE_DIR, 'static'))]  # Carpeta static global
+STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, 'staticfiles'))    # Destino de collectstatic
+MEDIA_ROOT = BASE_DIR + "/media/"   # Carpeta para archivos subidos por usuarios
+MEDIA_URL = "/media/"               # URL para acceder a archivos multimedia
+
+# Manejadores para upload de archivos (primero intenta memoria, luego disco temporal)
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler"
+)
+
+
+# ============================================================================
+# CONFIGURACIÓN DE CRONTAB (tareas programadas)
+# ============================================================================
 
 """
-CRONTAB SECTION
+Formato de crontab:
+┌───────────── min (0 - 59)
+│ ┌────────────── hour (0 - 23)
+│ │ ┌─────────────── day of month (1 - 31)
+│ │ │ ┌──────────────── month (1 - 12)
+│ │ │ │ ┌───────────────── day of week (0 - 6) (0=domingo, 6=sábado)
+│ │ │ │ │
+* * * * *  comando a ejecutar
 
-
-# ┌───────────── min (0 - 59)
-# │ ┌────────────── hour (0 - 23)
-# │ │ ┌─────────────── day of month (1 - 31)
-# │ │ │ ┌──────────────── month (1 - 12)
-# │ │ │ │ ┌───────────────── day of week (0 - 6) (0 to 6 are Sunday to
-# │ │ │ │ │                  Saturday, or use names; 7 is also Sunday)
-# │ │ │ │ │
-# │ │ │ │ │
-# * * * * *  command to execute
-
-# 1 0 * * * -> Con este formato se ejecutara el comando a las 00:01 hs todos los dias
-# 0 20 * * * -> Con este formato se ejecutara el comando a las 20:00 hs todos los dias
-# */1 * * * * -> Con este formato se ejecutara el comando cada 1 minuto
-
-
+Ejemplos:
+1 0 * * *  → 00:01 todos los días
+0 20 * * * → 20:00 todos los días
+*/1 * * * * → cada 1 minuto
 """
 
-CRONTAB_PYTHON_EXECUTABLE ="~/webapps/grafiexpress/bin/python2.7"
+# Ruta al ejecutable de Python del entorno virtual
+CRONTAB_PYTHON_EXECUTABLE = "~/webapps/grafiexpress/bin/python2.7"
 
+# Nombre del proyecto Django para las tareas cron
 CRONTAB_DJANGO_PROJECT_NAME = 'grafiexpress'
-CRONTAB_DJANGO_MANAGE_PATH = BASE_DIR+'/manage.py'
-CRONTAB_DJANGO_SETTINGS_MODULE =  BASE_DIR+'/grafiexpress/settings.py'
 
+# Ruta al archivo manage.py
+CRONTAB_DJANGO_MANAGE_PATH = BASE_DIR + '/manage.py'
+
+# Ruta al archivo settings.py (aunque la variable no se usa directamente)
+CRONTAB_DJANGO_SETTINGS_MODULE = BASE_DIR + '/grafiexpress/settings.py'
+
+# Definición de tareas cron
 CRONJOBS = [
+    # Ejecuta todos los días a la 01:00 la función set_vencimiento_timbrado
+    # Redirige el log a /tmp/scheduled_job.log
     ('1 0 * * *', 'empresas.cron.set_vencimiento_timbrado', '>> /tmp/scheduled_job.log'),
-
 ]
