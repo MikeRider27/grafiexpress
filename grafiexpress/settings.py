@@ -170,6 +170,31 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # URL para redirigir cuando se requiere autenticación
 LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/'
+
+
+# ============================================================================
+# SEGURIDAD (cabeceras y cookies)
+# ============================================================================
+
+# El navegador no adivina el tipo de contenido (evita que un archivo subido se
+# interprete como HTML/JS).
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'  # no se embebe el sistema en iframes de otros sitios
+
+# HTTPS: se activan cuando el sistema se sirve por https (SECURE_HTTPS=True en
+# .env). Se dejan configurables para no romper un despliegue solo-http.
+_HTTPS = os.environ.get('SECURE_HTTPS', 'False') == 'True'
+SESSION_COOKIE_SECURE = _HTTPS       # la cookie de sesión solo viaja por https
+CSRF_COOKIE_SECURE = _HTTPS
+SECURE_SSL_REDIRECT = _HTTPS         # redirige http -> https
+SECURE_HSTS_SECONDS = 31536000 if _HTTPS else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _HTTPS
+SESSION_COOKIE_HTTPONLY = True       # JavaScript no accede a la cookie de sesión
+
+# La sesión expira al cerrar el navegador y como máximo tras este tiempo
+SESSION_COOKIE_AGE = int(os.environ.get('SESSION_COOKIE_AGE', str(60 * 60 * 12)))  # 12 h
 
 
 # ============================================================================
