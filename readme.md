@@ -56,6 +56,29 @@ solas al arrancar `web`.
 > coincide con el historial de migraciones (p. ej. `materiales.0002` falla
 > porque la columna ya existe).
 
+### Roles de usuario
+
+Al arrancar se crean (si no existen) estos grupos, con permisos de
+agregar/modificar en sus módulos; **borrar queda solo para Administrador**
+(Django 1.8 no tiene permiso de "solo ver"):
+
+| Rol | Módulos |
+|---|---|
+| Administrador | Todo, incluida la gestión de usuarios |
+| Gerencia | Todos los módulos, sin borrar ni gestionar usuarios |
+| Comercial | Clientes, comercial y carga de sus propias OT |
+| Facturación | Facturas y remisiones (imprimir/anular) y clientes |
+| Cobranzas | Recibos, cheques, bancos y estado de cuenta |
+| Compras y pagos | Proveedores, compras, pagos, cheques emitidos y bancos |
+| Producción | OT de todos los vendedores, costos, procesos y máquinas |
+| Depósito | Stock, altas, bajas, retiros y devoluciones |
+
+Se asignan en Sistema > Usuarios > (usuario) > Grupos. Un vendedor debe
+tener además su ficha en Funcionarios vinculada al usuario: así ve solo sus
+OT y actividades (salvo que tenga el permiso "Ver Todas las OTs").
+Si se cambia la definición en `sistema/management/commands/crear_roles.py`,
+aplicarla con `make roles`.
+
 ### Datos de prueba
 
 Para probar sin datos reales, sobre una base vacía (sin clientes):

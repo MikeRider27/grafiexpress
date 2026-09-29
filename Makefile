@@ -6,7 +6,7 @@ STAMP       := $(shell date +%Y%m%d_%H%M%S)
 
 .DEFAULT_GOAL := help
 .PHONY: help init up dev down restart build logs ps shell manage migrate \
-        superuser psql backup restore reset-db demo
+        superuser psql backup restore reset-db demo roles
 
 help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -51,6 +51,9 @@ migrate: ## Aplica migraciones
 
 superuser: ## Crea un superusuario de Django
 	$(COMPOSE) exec web python manage.py createsuperuser
+
+roles: ## Redefine los permisos de los roles de usuario (crear_roles --actualizar)
+	$(COMPOSE) exec web python manage.py crear_roles --actualizar
 
 demo: ## Carga datos FALSOS de prueba (solo en una base sin clientes)
 	$(COMPOSE) exec web python manage.py cargar_datos_demo

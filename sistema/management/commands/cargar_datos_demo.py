@@ -10,11 +10,13 @@ Los registros se crean con los mismos save()/actualizar_*() que usa el admin,
 así que stock, saldos de facturas/compras y cantidades de las OT quedan
 consistentes. La generación es determinística (semilla fija).
 """
+import os
 import random
 from datetime import date, time, timedelta
 from decimal import Decimal
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -135,7 +137,7 @@ class Command(BaseCommand):
                 email='%s.%s@grafiexpress.test' % (nombre.lower(), apellido.lower()),
                 fecha_de_ingreso=dias_atras(random.randint(200, 2500)), usuario=usuario)
 
-        # Usuarios de prueba (no superusuarios) asociados a vendedores
+        # Usuarios de prueba (no superusuarios, rol Comercial) asociados a vendedores
         self.usuarios = []
         for nombre, apellido in [('Marta', 'Vera'), ('Julio', 'Ortiz')]:
             username = 'vendedor_' + nombre.lower()
@@ -144,6 +146,8 @@ class Command(BaseCommand):
                 first_name=nombre, last_name=apellido)
             user.is_staff = True
             user.save()
+            call_command('crear_roles', stdout=open(os.devnull, 'w'))
+            user.groups.add(Group.objects.get(name='Comercial'))
             self.usuarios.append(user)
 
         self.vendedores = [funcionario('Marta', 'Vera', self.usuarios[0]),
