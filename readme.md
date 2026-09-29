@@ -104,6 +104,29 @@ El medio de pago "Nota de crédito" de los recibos se mantiene por los datos
 históricos; para notas nuevas no hace falta cargarla también en un recibo
 (eso descontaría dos veces).
 
+### Seguridad
+
+Medidas aplicadas (además del login obligatorio y los permisos por rol):
+
+- **Archivos subidos protegidos.** Los documentos de `/media/` (adjuntos de
+  clientes, presupuestos y OT) no se sirven directo: pasan por la app, que
+  exige sesión, y nginx los entrega con `X-Accel-Redirect` desde una location
+  interna. Antes se descargaban con solo saber la URL.
+- **Validación de archivos.** Solo se aceptan documentos e imágenes (pdf,
+  jpg, png, doc/xls, etc.). Se rechazan `.html`, `.svg`, `.js`, `.php` y
+  ejecutables, que servidos desde el mismo origen podrían ejecutar código.
+- **Cabeceras y cookies:** `X-Frame-Options: DENY`, `nosniff`, cookie de
+  sesión `HttpOnly` y expiración configurable (`SESSION_COOKIE_AGE`).
+- **HTTPS:** con `SECURE_HTTPS=True` (cuando se sirva por https) se activan
+  cookies `Secure`, redirección a https y HSTS.
+- **Secretos fuera del código:** `SECRET_KEY` y `DB_PASSWORD` obligatorias
+  por entorno; sin ellas el sistema no arranca.
+
+Pendiente (requiere más trabajo o infraestructura): **límite de intentos de
+login** (Django no lo trae; hoy no hay bloqueo ante fuerza bruta — se
+recomienda django-axes o un límite en nginx) y, si se expone a internet,
+servir todo por **HTTPS**.
+
 ### Datos de prueba
 
 Para probar sin datos reales, sobre una base vacía (sin clientes):
