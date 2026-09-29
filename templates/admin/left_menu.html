@@ -678,6 +678,23 @@
 	</li>
 	{% endif %}
 
+	{% if perms.ventas.add_notadecredito or perms.ventas.change_notadecredito %}
+	<li>
+		<a href="#">NOTAS DE CREDITO<span class="fa arrow"></span></a>
+		<ul class="nav nav-second-level">
+			{% if perms.ventas.add_notadecredito %}
+			<li>
+				<a href="/admin/ventas/notadecredito/add/">AGREGAR</a>
+			</li>
+			{% endif %}
+			<li>
+				<a href="/admin/ventas/notadecredito/">LISTAR</a>
+			</li>
+		</ul>
+		<!-- /.nav-second-level -->
+	</li>
+	{% endif %}
+
 {% elif '/admin/cobros' in request.path %}
 
 	{% if perms.cobros.add_recibo %}

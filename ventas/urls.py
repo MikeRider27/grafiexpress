@@ -10,6 +10,12 @@ from ventas.reports import *
 urlpatterns = patterns('',
 
     url(
+        'facturanotacreditoautocomplete/$',
+        FacturaNotaCreditoAutocomplete.as_view(),
+        name='facturanotacredito-autocomplete',
+    ),
+
+    url(
         'facturacobroautocomplete/$',
         FacturaCobroAutocomplete.as_view(),
         name='facturacobro-autocomplete',
@@ -33,6 +39,12 @@ urlpatterns = patterns('',
     url(r'^venta/(?P<pk>\d+)/detail/$', VentaDetailView.as_view(), name='venta_det'),
 
     url(r'^venta/(?P<pk>\d+)/print/$', imprimir_venta, name='venta_print'),
+
+    url(r'^notadecredito/(?P<pk>\d+)/print/$', imprimir_nota_de_credito, name='notadecredito_print'),
+    url(r'^notadecredito/(?P<pk>\d+)/cancel/$', anular_nota_de_credito, name='notadecredito_cancel'),
+    # print_confirm.html abre el PDF reemplazando "print" por el reporte de la empresa
+    url(r'^notadecredito/(?P<pk>\d+)/(grafiexpress_report|gesa_report|pdf)/$', pdf_nota_de_credito,
+        name='notadecredito_pdf'),
     url(r'^venta/(?P<pk>\d+)/cancel/$', anular_venta, name='venta_cancel'),
     url(r'^venta/(?P<pk>\d+)/revert/$', cancelar_anular_venta, name='venta_revert'),
 

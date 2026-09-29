@@ -69,7 +69,7 @@ agregar/modificar en sus módulos; **borrar queda solo para Administrador**
 | Administrador | Todo, incluida la gestión de usuarios |
 | Gerencia | Todos los módulos, sin borrar ni gestionar usuarios |
 | Comercial | Clientes, comercial y carga de sus propias OT |
-| Facturación | Facturas y remisiones (imprimir/anular) y clientes |
+| Facturación | Facturas, remisiones y notas de crédito (imprimir/anular) y clientes |
 | Cobranzas | Recibos, cheques, bancos y estado de cuenta |
 | Compras y pagos | Proveedores, compras, pagos, cheques emitidos y bancos |
 | Producción | OT de todos los vendedores, costos, procesos y máquinas |
@@ -80,6 +80,29 @@ tener además su ficha en Funcionarios vinculada al usuario: así ve solo sus
 OT y actividades (salvo que tenga el permiso "Ver Todas las OTs").
 Si se cambia la definición en `sistema/management/commands/crear_roles.py`,
 aplicarla con `make roles`.
+
+### Notas de crédito
+
+Ventas > Notas de crédito. Se emiten sobre una factura del cliente con un
+talonario de tipo **NOTA DE CREDITO** (crearlo en Empresas > Talonarios, con
+su timbrado): el número y el timbrado se toman del talonario al guardar.
+
+- **Factura a crédito con saldo pendiente:** la nota descuenta del saldo y
+  no puede superarlo (el cliente pasa a deber menos; se ve en cobros
+  pendientes y en el estado de cuenta).
+- **Factura contado o ya pagada:** la nota queda como comprobante de la
+  devolución o del descuento y no modifica el saldo (el reintegro de dinero
+  se gestiona aparte). No puede superar el total de la factura.
+- No se emite sobre facturas anuladas ni con fecha anterior a la factura.
+- Mientras está *sin imprimir* se puede corregir; al imprimirla queda fija.
+  **No se borra, se anula**: la factura recupera el saldo acreditado.
+- El PDF es un documento completo (no hay formulario preimpreso de notas de
+  crédito): datos de la empresa y el timbrado, cliente, factura afectada,
+  motivo, detalle por tasa de IVA, liquidación del IVA y total en letras.
+
+El medio de pago "Nota de crédito" de los recibos se mantiene por los datos
+históricos; para notas nuevas no hace falta cargarla también en un recibo
+(eso descontaría dos veces).
 
 ### Datos de prueba
 

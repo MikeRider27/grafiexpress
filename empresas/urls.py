@@ -5,6 +5,12 @@ from empresas.views import *
 
 urlpatterns = [
     url(
+        'talonarionotacreditoautocomplete/$',
+        TalonarioNotaCreditoAutocomplete.as_view(),
+        name='talonarionotacredito-autocomplete',
+    ),
+
+    url(
         'empresaautocomplete/$',
         EmpresaAutocomplete.as_view(),
         name='empresa-autocomplete',

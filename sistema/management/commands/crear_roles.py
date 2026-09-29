@@ -35,7 +35,7 @@ ROLES = {
         ['ventas.print_venta', 'ventas.cancel_venta', 'ventas.print_remision', 'ventas.cancel_remision',
          'ventas.view_venta', 'ventas.view_remision', 'produccion.view_all_ots',
          'automoviles.change_automovil', 'empresas.change_talonario'],
-        'Emisión e impresión de facturas y notas de remisión.'),
+        'Emisión e impresión de facturas, notas de remisión y notas de crédito.'),
     'Cobranzas': (
         ['cobros', 'cheques', 'bancos'],
         ['cobros.print_recibo', 'cobros.cancel_recibo', 'clientes.change_cliente'],

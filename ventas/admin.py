@@ -287,3 +287,93 @@ class RemisionAntiguoAdmin(admin.ModelAdmin):
             for detalle in detalles:
                 orden_de_trabajo = detalle.detalle_orden_de_trabajo.orden_de_trabajo
                 orden_de_trabajo.actualizar_cantidades()
+
+# ---------------------------------------------------------------------------
+# Notas de crédito
+# ---------------------------------------------------------------------------
+
+class DetalleNotaDeCreditoInline(admin.TabularInline):
+    model = DetalleNotaDeCredito
+    form = DetalleNotaDeCreditoForm
+    formset = DetalleNotaDeCreditoFormSet
+    extra = 3
+    readonly_fields = ('subtotal',)
+
+
+@register(NotaDeCredito)
+class NotaDeCreditoAdmin(admin.ModelAdmin):
+    form = NotaDeCreditoForm
+    inlines = (DetalleNotaDeCreditoInline,)
+    list_display = ('get_numero', 'fecha_de_emision', 'cliente', 'venta', 'motivo', 'total_formateado',
+                    'estado', 'acciones')
+    list_filter = ('estado', 'motivo', 'fecha_de_emision')
+    search_fields = ('numero', 'cliente__razon_social', 'cliente__ruc', 'venta__numero_de_factura')
+    date_hierarchy = 'fecha_de_emision'
+
+    fieldsets = (
+        (None, {'fields': ['talonario', 'fecha_de_emision', 'cliente', 'venta', 'motivo', 'observaciones']}),
+    )
+
+    def get_numero(self, obj):
+        return obj.get_numero()
+    get_numero.short_description = 'número'
+    get_numero.admin_order_field = 'numero'
+
+    def total_formateado(self, obj):
+        from extra.globals import separador_de_miles
+        return separador_de_miles(obj.total)
+    total_formateado.short_description = 'total'
+    total_formateado.admin_order_field = 'total'
+
+    def acciones(self, obj):
+        from django.utils.html import format_html
+        botones = []
+        if obj.estado != ANULADO:
+            botones.append(format_html(
+                '<a class="btn btn-success btn-xs" href="/admin/ventas/notadecredito/{}/print/" title="Imprimir">'
+                '<i class="fa fa-print"></i></a>', obj.pk))
+            botones.append(format_html(
+                '<a class="btn btn-danger btn-xs" href="/admin/ventas/notadecredito/{}/cancel/" title="Anular">'
+                '<i class="fa fa-ban"></i></a>', obj.pk))
+        return ' '.join(botones)
+    acciones.short_description = 'acciones'
+    acciones.allow_tags = True
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is not None:
+            return ('estado',)
+        return ()
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            # Numeración del talonario, bloqueándolo para que dos usuarios no tomen el mismo número
+            from empresas.models import Talonario
+            talonario = Talonario.objects.select_for_update().get(pk=obj.talonario_id)
+            obj.talonario = talonario
+            obj.codigo_de_establecimiento = talonario.codigo_de_establecimiento
+            obj.punto_de_expedicion = talonario.punto_de_expedicion
+            obj.numero = '%07d' % talonario.get_siguiente()
+            obj.timbrado = talonario.timbrado.numero
+            obj.empresa = talonario.sucursal.empresa
+            obj.sucursal = talonario.sucursal
+            talonario.set_siguiente()
+        obj.save()
+
+    def save_related(self, request, form, formsets, change):
+        super(NotaDeCreditoAdmin, self).save_related(request, form, formsets, change)
+        form.instance.actualizar_total()
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        # Impresa o anulada ya no se modifica: se muestra el documento
+        nota = NotaDeCredito.objects.filter(pk=object_id).first()
+        if nota is not None and nota.estado != PENDIENTE:
+            return HttpResponseRedirect('/admin/ventas/notadecredito/%s/pdf/' % nota.pk)
+        return super(NotaDeCreditoAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # se anula, no se borra
+
+    def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return super(NotaDeCreditoAdmin, self).has_change_permission(request, obj)
+        return obj.estado == PENDIENTE and super(NotaDeCreditoAdmin, self).has_change_permission(request, obj)

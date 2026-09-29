@@ -74,6 +74,19 @@
             <td> {{ object.saldo.to_integral | intcomma | default_if_none:"&nbsp;" }} </td>
         </tr>
 
+        {% if object.notadecredito_set.exists %}
+        <tr>
+            <th scope="row"> Notas de crédito </th>
+            <td>
+                {% for nota in object.notadecredito_set.all %}
+                <a href="/admin/ventas/notadecredito/{{ nota.pk }}/pdf/" target="_blank">{{ nota.get_numero }}</a>
+                ({{ nota.get_motivo_display }}) Gs. {{ nota.total.to_integral | intcomma }}
+                {% if nota.estado == 'A' %}<span class="label label-danger">ANULADA</span>{% elif not nota.afecta_saldo %}<span class="label label-default">no descuenta saldo</span>{% endif %}<br>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endif %}
+
         </tbody>
     </table>
 

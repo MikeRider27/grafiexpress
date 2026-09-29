@@ -625,3 +625,105 @@ def imprimir_venta_gesa(request, pk):
     p.showPage()
     p.save()
     return response
+
+
+# ---------------------------------------------------------------------------
+# Nota de crédito: documento completo en PDF (no hay formulario preimpreso)
+# ---------------------------------------------------------------------------
+
+def pdf_nota_de_credito(request, pk):
+    from io import BytesIO
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    from extra.globals import separador_de_miles
+
+    nota = get_object_or_404(NotaDeCredito, pk=pk)
+    venta = nota.venta
+    cliente = nota.cliente
+    timbrado = nota.talonario.timbrado
+    estilos = getSampleStyleSheet()
+    normal = ParagraphStyle('n', parent=estilos['Normal'], fontSize=9, leading=11)
+    negrita = ParagraphStyle('b', parent=normal, fontName='Helvetica-Bold')
+    titulo = ParagraphStyle('t', parent=estilos['Title'], fontSize=15, leading=18, spaceAfter=2)
+    gris = colors.HexColor('#23527c')
+
+    def gs(valor):
+        return separador_de_miles(valor) if valor else '0'
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=36, rightMargin=36, topMargin=30, bottomMargin=30,
+                            title='Nota de crédito ' + nota.get_numero())
+    e = []
+
+    # --- Cabecera: empresa | timbrado y número
+    empresa = [Paragraph('<b>%s</b>' % nota.empresa.nombre, ParagraphStyle('e', parent=normal, fontSize=13, leading=16)),
+               Paragraph('RUC: %s' % nota.empresa.ruc, normal),
+               Paragraph(nota.empresa.direccion or '', normal),
+               Paragraph('Tel.: %s' % (nota.empresa.telefono or ''), normal)]
+    documento = [Paragraph('Timbrado Nro.: <b>%s</b>' % nota.timbrado, normal),
+                 Paragraph('Vigencia: %s al %s' % (
+                     timbrado.fecha_de_inicio.strftime('%d/%m/%Y') if timbrado and timbrado.fecha_de_inicio else '-',
+                     timbrado.fecha_de_vencimiento.strftime('%d/%m/%Y') if timbrado and timbrado.fecha_de_vencimiento else '-'),
+                     normal),
+                 Paragraph('NOTA DE CRÉDITO', titulo),
+                 Paragraph('Nro. <b>%s</b>' % nota.get_numero(), ParagraphStyle('nro', parent=normal, fontSize=11,
+                                                                               alignment=1))]
+    cab = Table([[empresa, documento]], colWidths=[300, 223])
+    cab.setStyle(TableStyle([('BOX', (0, 0), (-1, -1), 0.8, gris), ('LINEBEFORE', (1, 0), (1, 0), 0.8, gris),
+                             ('VALIGN', (0, 0), (-1, -1), 'TOP'), ('ALIGN', (1, 0), (1, 0), 'CENTER'),
+                             ('LEFTPADDING', (0, 0), (-1, -1), 8), ('TOPPADDING', (0, 0), (-1, -1), 6)]))
+    e += [cab, Spacer(1, 8)]
+
+    # --- Datos del cliente y de la factura afectada
+    datos = [
+        [Paragraph('<b>Fecha de emisión:</b> %s' % nota.fecha_de_emision.strftime('%d/%m/%Y'), normal),
+         Paragraph('<b>Factura afectada:</b> %s' % venta.get_numero_de_factura(), normal)],
+        [Paragraph('<b>Cliente:</b> %s' % cliente.razon_social, normal),
+         Paragraph('<b>Fecha de la factura:</b> %s' % venta.fecha_de_emision.strftime('%d/%m/%Y'), normal)],
+        [Paragraph('<b>RUC:</b> %s' % cliente.ruc, normal),
+         Paragraph('<b>Timbrado de la factura:</b> %s' % (venta.timbrado or '-'), normal)],
+        [Paragraph('<b>Dirección:</b> %s' % (cliente.direccion or ''), normal),
+         Paragraph('<b>Motivo:</b> %s' % nota.get_motivo_display(), normal)],
+    ]
+    t = Table(datos, colWidths=[300, 223])
+    t.setStyle(TableStyle([('BOX', (0, 0), (-1, -1), 0.8, gris), ('LEFTPADDING', (0, 0), (-1, -1), 8)]))
+    e += [t, Spacer(1, 8)]
+
+    # --- Detalle
+    filas = [['Cant.', 'Descripción', 'Precio unitario', 'Exentas', 'IVA 5%', 'IVA 10%']]
+    for d in nota.detallenotadecredito_set.all():
+        filas.append([gs(d.cantidad), Paragraph(d.descripcion, normal), gs(d.precio_unitario),
+                      gs(d.subtotal) if d.iva == EXCENTA else '',
+                      gs(d.subtotal) if d.iva == IVA_5 else '',
+                      gs(d.subtotal) if d.iva == IVA_10 else ''])
+    sub_0, sub_5, sub_10 = nota.get_subtotal(EXCENTA), nota.get_subtotal(IVA_5), nota.get_subtotal(IVA_10)
+    filas.append(['', Paragraph('<b>Subtotales</b>', normal), '', gs(sub_0), gs(sub_5), gs(sub_10)])
+    det = Table(filas, colWidths=[45, 218, 70, 63, 63, 64], repeatRows=1)
+    det.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), gris), ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'), ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('GRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#b8c4d0')),
+        ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#eef2f7'))]))
+    e += [det, Spacer(1, 6)]
+
+    # --- Totales, total en letras y liquidación del IVA
+    tot = Table([
+        [Paragraph('<b>TOTAL A ACREDITAR:</b> Gs. %s' % gs(nota.total), negrita)],
+        [Paragraph('<b>Son guaraníes:</b> %s' % num2words(int(nota.total), lang='es').upper(), normal)],
+        [Paragraph('<b>Liquidación del IVA:</b> 5%%: %s &nbsp;&nbsp; 10%%: %s &nbsp;&nbsp; Total IVA: %s'
+                   % (gs(nota.get_iva_5()), gs(nota.get_iva_10()), gs(nota.get_total_iva())), normal)],
+    ], colWidths=[523])
+    tot.setStyle(TableStyle([('BOX', (0, 0), (-1, -1), 0.8, gris), ('LEFTPADDING', (0, 0), (-1, -1), 8)]))
+    e += [tot]
+    if nota.observaciones:
+        e += [Spacer(1, 6), Paragraph('<b>Observaciones:</b> %s' % nota.observaciones, normal)]
+    if nota.estado == ANULADO:
+        e += [Spacer(1, 10), Paragraph('<font color="red"><b>ANULADA</b></font>', titulo)]
+
+    doc.build(e)
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="nota_de_credito_%s.pdf"' % nota.get_numero()
+    return response

@@ -87,3 +87,17 @@ class TimbradoAutocomplete(autocomplete.Select2QuerySetView):
 
         return qs
 
+
+
+class TalonarioNotaCreditoAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return Talonario.objects.none()
+
+        qs = Talonario.objects.filter(fecha_de_caducidad__gte=date.today(), agotado=False, activo=True,
+                                      tipo_de_talonario=NOTA_CREDITO)
+
+        if self.q:
+            qs = qs.filter(descripcion__icontains=self.q)
+
+        return qs

@@ -1,3 +1,5 @@
+from datetime import date
+
 from dal import autocomplete
 from django import forms
 from django.db.models.query_utils import Q
@@ -509,3 +511,122 @@ class SearchRemisionOTForm(forms.Form):
                                     attrs={'placeholder': 'Numero de OT', 'style': 'width:120px;'}
                                     )
                                 )
+
+# ---------------------------------------------------------------------------
+# Notas de crédito
+# ---------------------------------------------------------------------------
+
+class NotaDeCreditoForm(forms.ModelForm):
+    class Meta:
+        model = NotaDeCredito
+        fields = ['talonario', 'fecha_de_emision', 'cliente', 'venta', 'motivo', 'observaciones']
+        widgets = {
+            "talonario": autocomplete.ModelSelect2(url='/admin/empresas/talonarionotacreditoautocomplete/'),
+            "cliente": autocomplete.ModelSelect2(url='/admin/clientes/cliente/clienteautocomplete/'),
+            "venta": autocomplete.ModelSelect2(url='/admin/ventas/facturanotacreditoautocomplete/',
+                                               forward=['cliente']),
+            "observaciones": forms.TextInput(attrs={'size': '60'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(NotaDeCreditoForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            # Talonario y factura no se cambian una vez emitida (la numeración ya se asignó)
+            for campo in ('talonario', 'cliente', 'venta'):
+                self.fields[campo].widget = forms.HiddenInput()
+                self.fields[campo].required = False
+
+    def clean_talonario(self):
+        talonario = self.cleaned_data.get('talonario')
+        if self.instance.pk:
+            return self.instance.talonario
+        if talonario is None:
+            return talonario
+        if talonario.tipo_de_talonario != NOTA_CREDITO:
+            raise forms.ValidationError("El talonario no es de notas de crédito.")
+        if not talonario.activo or talonario.agotado:
+            raise forms.ValidationError("El talonario no está activo o está agotado.")
+        if talonario.fecha_de_caducidad and talonario.fecha_de_caducidad < date.today():
+            raise forms.ValidationError("El talonario está vencido.")
+        if talonario.timbrado is None:
+            raise forms.ValidationError("El talonario no tiene timbrado asignado.")
+        return talonario
+
+    def clean(self):
+        cleaned_data = super(NotaDeCreditoForm, self).clean()
+        if self.instance.pk:
+            cleaned_data['cliente'] = self.instance.cliente
+            cleaned_data['venta'] = self.instance.venta
+            return cleaned_data
+
+        cliente = cleaned_data.get('cliente')
+        venta = cleaned_data.get('venta')
+        fecha = cleaned_data.get('fecha_de_emision')
+        if venta is not None:
+            if cliente is not None and venta.cliente_id != cliente.id:
+                self.add_error('venta', "La factura no es de este cliente.")
+            if venta.estado == ANULADO:
+                self.add_error('venta', "No se puede emitir una nota de crédito sobre una factura anulada.")
+            if fecha and fecha < venta.fecha_de_emision:
+                self.add_error('fecha_de_emision', "La fecha no puede ser anterior a la de la factura.")
+        return cleaned_data
+
+
+class DetalleNotaDeCreditoForm(forms.ModelForm):
+    class Meta:
+        model = DetalleNotaDeCredito
+        fields = ['descripcion', 'iva', 'cantidad', 'precio_unitario']
+        widgets = {
+            "descripcion": forms.TextInput(attrs={'size': '40'}),
+            "cantidad": forms.NumberInput(attrs={'style': 'text-align:right; width:90px', 'step': 'any', 'min': '0'}),
+            "precio_unitario": forms.NumberInput(attrs={'style': 'text-align:right; width:120px', 'step': 'any', 'min': '0'}),
+        }
+
+    def clean(self):
+        cleaned_data = super(DetalleNotaDeCreditoForm, self).clean()
+        for campo in ('cantidad', 'precio_unitario'):
+            valor = cleaned_data.get(campo)
+            if valor is not None and valor <= 0:
+                self.add_error(campo, "Debe ser mayor a cero.")
+        return cleaned_data
+
+
+class DetalleNotaDeCreditoFormSet(forms.BaseInlineFormSet):
+    """El total de la nota no puede superar lo que la factura admite."""
+
+    def clean(self):
+        super(DetalleNotaDeCreditoFormSet, self).clean()
+        if any(self.errors):
+            return
+        total = 0
+        filas = 0
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get('DELETE'):
+                continue
+            filas += 1
+            total += form.cleaned_data['cantidad'] * form.cleaned_data['precio_unitario']
+        if filas == 0:
+            raise forms.ValidationError("La nota de crédito debe tener al menos un detalle.")
+
+        nota = self.instance
+        if not nota.venta_id:
+            return  # el formulario principal ya tiene errores (ej. factura inválida)
+        venta = nota.venta
+
+        # Facturas a crédito con saldo: la nota descuenta del saldo y no puede superarlo.
+        # Si no (contado o ya pagada): no puede superar lo que queda sin acreditar del total.
+        afecta = nota.afecta_saldo if nota.pk else (venta.condicion == CREDITO and venta.saldo > 0)
+        if afecta:
+            disponible = venta.get_saldo() + (nota.total if nota.pk else 0)
+            if total > disponible:
+                raise forms.ValidationError(
+                    "El total (%s) supera el saldo pendiente de la factura (%s)." % (total, disponible))
+        else:
+            otras = NotaDeCredito.objects.filter(venta=venta).exclude(estado=ANULADO).exclude(pk=nota.pk)
+            acreditado = sum(n.total for n in otras)
+            if total + acreditado > venta.total:
+                raise forms.ValidationError(
+                    "El total (%s) más otras notas de crédito de la factura (%s) supera el total de la factura (%s)."
+                    % (total, acreditado, venta.total))
+        nota.afecta_saldo = afecta

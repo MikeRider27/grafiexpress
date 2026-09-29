@@ -180,8 +180,14 @@ class Venta(models.Model):
             suma = suma + detalle.monto
         return suma
 
+    def get_total_notas_de_credito(self):
+        """Notas de crédito vigentes que descuentan del saldo de esta factura."""
+        from django.db.models import Sum
+        return NotaDeCredito.objects.filter(venta_id=self.id, afecta_saldo=True).exclude(
+            estado=ANULADO).aggregate(t=Sum('total'))['t'] or 0
+
     def get_saldo(self):
-        return (self.total - self.pagado)
+        return (self.total - self.pagado - self.get_total_notas_de_credito())
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -314,3 +320,108 @@ class RemisionAntiguo(Remision):
 class VentaAntiguo(Venta):
     class Meta:
         proxy = True
+
+
+# ---------------------------------------------------------------------------
+# Notas de crédito
+# ---------------------------------------------------------------------------
+
+MOTIVOS_NOTA_DE_CREDITO = (
+    ('DEV', 'Devolución de mercaderías'),
+    ('DES', 'Descuento'),
+    ('BON', 'Bonificación'),
+    ('AJU', 'Ajuste de precio'),
+    ('OTR', 'Otro'),
+)
+
+
+class NotaDeCredito(models.Model):
+    """
+    Nota de crédito sobre una factura de venta, con numeración propia de un
+    talonario de tipo NOTA DE CREDITO.
+
+    Si al emitirla la factura es a crédito y tiene saldo pendiente, descuenta
+    de ese saldo (afecta_saldo=True; no puede superarlo). Si la factura ya
+    estaba pagada (o es contado), queda como comprobante de la devolución o
+    del descuento y no modifica el saldo: el reintegro se gestiona aparte.
+    """
+
+    class Meta:
+        permissions = (
+            ("print_notadecredito", "Puede imprimir una nota de crédito"),
+            ("cancel_notadecredito", "Puede anular una nota de crédito"),
+        )
+        verbose_name = "Nota de crédito"
+        verbose_name_plural = "Notas de crédito"
+        unique_together = (('codigo_de_establecimiento', 'punto_de_expedicion', 'numero', 'timbrado'),)
+
+    talonario = models.ForeignKey("empresas.Talonario")
+    empresa = models.ForeignKey("empresas.Empresa", editable=False)
+    sucursal = models.ForeignKey("empresas.Sucursal", null=True, editable=False)
+    codigo_de_establecimiento = models.CharField(max_length=3, editable=False)
+    punto_de_expedicion = models.CharField(max_length=3, editable=False)
+    numero = models.CharField(max_length=10, editable=False)
+    timbrado = models.CharField(max_length=10, editable=False)
+
+    fecha_de_emision = models.DateField(default=date.today)
+    cliente = models.ForeignKey("clientes.Cliente")
+    venta = models.ForeignKey(Venta, verbose_name="factura")
+    motivo = models.CharField(max_length=3, choices=MOTIVOS_NOTA_DE_CREDITO, default='DEV')
+    observaciones = models.CharField(max_length=300, blank=True, default='')
+
+    total = models.DecimalField(max_digits=15, decimal_places=2, default=0, editable=False)
+    afecta_saldo = models.BooleanField(default=False, editable=False,
+                                       help_text="Descuenta del saldo pendiente de la factura")
+    estado = models.CharField(choices=ESTADOS, default=PENDIENTE, max_length=1, editable=False)
+
+    def __str__(self):
+        return "Nota de crédito Nro.: " + self.get_numero()
+
+    def get_numero(self):
+        return "%s-%s-%s" % (self.codigo_de_establecimiento, self.punto_de_expedicion, self.numero)
+
+    def get_subtotal(self, iva):
+        from django.db.models import Sum
+        return self.detallenotadecredito_set.filter(iva=iva).aggregate(t=Sum('subtotal'))['t'] or 0
+
+    def get_iva_5(self):
+        from decimal import Decimal
+        return (Decimal(self.get_subtotal(IVA_5)) / 21).quantize(Decimal('1'))
+
+    def get_iva_10(self):
+        from decimal import Decimal
+        return (Decimal(self.get_subtotal(IVA_10)) / 11).quantize(Decimal('1'))
+
+    def get_total_iva(self):
+        return self.get_iva_5() + self.get_iva_10()
+
+    def actualizar_total(self):
+        """Recalcula el total desde los detalles y actualiza el saldo de la factura."""
+        from django.db.models import Sum
+        self.total = self.detallenotadecredito_set.aggregate(t=Sum('subtotal'))['t'] or 0
+        self.save()
+
+    def save(self, *args, **kwargs):
+        super(NotaDeCredito, self).save(*args, **kwargs)
+        # La factura recalcula pagado/saldo en su save()
+        self.venta.save()
+
+
+class DetalleNotaDeCredito(models.Model):
+    class Meta:
+        verbose_name = "Detalle"
+        verbose_name_plural = "Detalles"
+
+    nota_de_credito = models.ForeignKey(NotaDeCredito)
+    descripcion = models.CharField(max_length=200)
+    iva = models.IntegerField(choices=IVA, default=IVA_10)
+    cantidad = models.DecimalField(max_digits=15, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=15, decimal_places=2, editable=False)
+
+    def __str__(self):
+        return self.descripcion
+
+    def save(self, *args, **kwargs):
+        self.subtotal = self.cantidad * self.precio_unitario
+        super(DetalleNotaDeCredito, self).save(*args, **kwargs)

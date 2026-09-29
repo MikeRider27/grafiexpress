@@ -45,3 +45,18 @@ class FacturaCobroAutocomplete(autocomplete.Select2QuerySetView):
             qs = qs.filter(numero_de_factura__icontains=self.q)
 
         return qs.order_by("-id")
+
+class FacturaNotaCreditoAutocomplete(autocomplete.Select2QuerySetView):
+    """Facturas no anuladas del cliente elegido en la nota de crédito."""
+    def get_queryset(self):
+        cliente = self.forwarded.get('cliente', None)
+
+        if not self.request.user.is_authenticated() or not cliente:
+            return Venta.objects.none()
+
+        qs = Venta.objects.filter(cliente_id=cliente).exclude(estado=ANULADO)
+
+        if self.q:
+            qs = qs.filter(numero_de_factura__icontains=self.q)
+
+        return qs.order_by("-id")

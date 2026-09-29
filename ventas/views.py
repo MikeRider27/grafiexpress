@@ -460,3 +460,39 @@ class VentaRemisionesView(DetailView):
         context['remisiones'] = Remision.objects.filter(venta=self.object,pk__in=rem_ids).distinct('id')
         context['form'] = form
         return self.render_to_response(context)
+
+
+# ---------------------------------------------------------------------------
+# Notas de crédito: imprimir (marca como impresa) y anular
+# ---------------------------------------------------------------------------
+from django.contrib.auth.decorators import permission_required
+
+
+@permission_required('ventas.print_notadecredito', raise_exception=True)
+def imprimir_nota_de_credito(request, pk):
+    context = RequestContext(request)
+    nota = get_object_or_404(NotaDeCredito, pk=pk)
+    if nota.estado == ANULADO:
+        return redirect('/admin/ventas/notadecredito/')
+    if request.method == 'POST':
+        nota.estado = CONFIRMADO
+        nota.save()
+        return redirect('/admin/ventas/notadecredito/')
+
+    mensaje = "¿Imprimir la Nota de crédito " + nota.get_numero() + "?"
+    return render_to_response("print_confirm.html", {'mensaje': mensaje, 'object': nota}, context)
+
+
+@permission_required('ventas.cancel_notadecredito', raise_exception=True)
+def anular_nota_de_credito(request, pk):
+    context = RequestContext(request)
+    nota = get_object_or_404(NotaDeCredito, pk=pk)
+    if request.method == 'POST' and nota.estado != ANULADO:
+        nota.estado = ANULADO
+        nota.save()  # la factura recupera el saldo en NotaDeCredito.save()
+        return redirect('/admin/ventas/notadecredito/')
+
+    mensaje = ("¿Anular la Nota de crédito " + nota.get_numero() + "? " +
+               ("La factura " + nota.venta.get_numero_de_factura() + " recupera el saldo acreditado. "
+                if nota.afecta_saldo else "") + "La anulación no se puede revertir.")
+    return render_to_response('venta_confirm.html', {'mensaje': mensaje}, context)
