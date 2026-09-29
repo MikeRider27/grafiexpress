@@ -61,7 +61,8 @@ class OrdenDeTrabajoListView(ListView):
         vendedor = Funcionario.objects.filter(usuario=self.request.user).first()
         if not self.request.user.is_superuser and vendedor:
             vendedor_id = self.request.GET.get('vendedor_id', '')
-            if vendedor_id != '':
+            # Solo quien puede ver todas las OTs elige otro vendedor; el resto ve lo suyo
+            if vendedor_id != '' and self.request.user.has_perm('produccion.view_all_ots'):
                 ordenes_de_trabajo = ordenes_de_trabajo.filter(vendedor__id=vendedor_id)
             else:
                 ordenes_de_trabajo = ordenes_de_trabajo.filter(vendedor__id=vendedor.id)

@@ -107,7 +107,8 @@ class ActividadListView(generic.ListView):
         vendedor = Funcionario.objects.filter(usuario=self.request.user).first()
         if not self.request.user.is_superuser and vendedor:
             vendedor_id = self.request.GET.get('vendedor_id', '')
-            if vendedor_id != '':
+            # Solo quien puede ver todas las OTs elige otro vendedor; el resto ve lo suyo
+            if vendedor_id != '' and self.request.user.has_perm('produccion.view_all_ots'):
                 actividades = actividades.filter(vendedor__id=vendedor_id)
             else:
                 actividades = actividades.filter(vendedor__id=vendedor.id)
@@ -202,7 +203,8 @@ class AgendaView(generic.ListView):
         vendedor = Funcionario.objects.filter(usuario=self.request.user).first()
         if not self.request.user.is_superuser and vendedor:
             vendedor_id = self.request.GET.get('vendedor_id', '')
-            if vendedor_id != '':
+            # Solo quien puede ver todas las OTs elige otro vendedor; el resto ve lo suyo
+            if vendedor_id != '' and self.request.user.has_perm('produccion.view_all_ots'):
                 actividades = actividades.filter(vendedor__id=vendedor_id)
             else:
                 actividades = actividades.filter(vendedor__id=vendedor.id)
