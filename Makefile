@@ -4,7 +4,7 @@ DEV_COMPOSE  = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 
 .DEFAULT_GOAL := help
 .PHONY: help init up dev down restart build logs ps shell manage migrate \
-        superuser psql backup restore reset-db demo roles
+        superuser psql backup restore reset-db demo roles test
 
 help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -52,6 +52,9 @@ superuser: ## Crea un superusuario de Django
 
 roles: ## Redefine los permisos de los roles de usuario (crear_roles --actualizar)
 	$(COMPOSE) exec web python manage.py crear_roles --actualizar
+
+test: ## Corre los tests automatizados (base temporal, no toca los datos)
+	$(COMPOSE) exec web python manage.py test sistema.tests $(a)
 
 demo: ## Carga datos FALSOS de prueba (solo en una base sin clientes)
 	$(COMPOSE) exec web python manage.py cargar_datos_demo

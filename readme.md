@@ -184,16 +184,40 @@ para hacer de paso — requiere su propio plan de trabajo y testing.
 ## Actualizar el sistema en producción
 
 1. `git pull` de la rama de producción.
-2. `make backup` (backup inmediato antes de actualizar).
-3. `make up` (reconstruye las imágenes; al arrancar, "web" aplica las
+2. `make test` (con la versión nueva ya construida: `make build` antes).
+3. `make backup` (backup inmediato antes de actualizar).
+4. `make up` (reconstruye las imágenes; al arrancar, "web" aplica las
    migraciones pendientes y crea los roles que falten).
-4. `make ps` para verificar que todos los servicios estén *healthy*.
+5. `make ps` para verificar que todos los servicios estén *healthy*.
 
 Las migraciones se generan en desarrollo (`makemigrations`) y se suben al
 repo; nunca se generan en el servidor.
 
 Los datos de acceso a los servidores están en `servidores.local.md`
 (archivo local, fuera del repo).
+
+## Tests automatizados
+
+```
+make test                                   # todos (~1 min)
+make test a="sistema.tests.test_seguridad"  # un grupo
+```
+
+Corren en una base temporal (no tocan los datos) cargada con los datos de
+demostración. Cubren:
+
+- **Seguridad:** ninguna vista responde sin sesión; cada rol solo abre sus
+  módulos; un vendedor no ve OT/actividades de otro.
+- **Pantallas:** todos los listados, altas y ediciones del admin y todas las
+  vistas propias cargan sin error 500; un registro inexistente da 404; cada
+  rol recorre su menú sin toparse con accesos bloqueados.
+- **Reglas de negocio:** saldos de facturas y recibos, stock por
+  altas/bajas, entregas de OT por remisiones, numeración de talonarios,
+  vencimiento de timbrados, recalcular_saldos.
+- **Reportes:** facturas/remisiones envían los parámetros correctos al
+  servicio Jasper (simulado) y el error es claro si el servicio no responde.
+
+Correrlos antes de cada actualización en producción.
 
 ## Mantenimiento
 
