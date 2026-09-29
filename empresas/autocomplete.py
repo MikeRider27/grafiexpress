@@ -77,7 +77,7 @@ class TalonarioReciboAutocomplete(autocomplete.Select2QuerySetView):
 
 class TimbradoAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if not self.request.is_authenticated():
+        if not self.request.user.is_authenticated():
             return Timbrado.objects.none()
 
         qs = Timbrado.objects.all()
