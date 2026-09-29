@@ -1,8 +1,6 @@
 # Atajos para operar el stack Docker de GrafiExpress. "make help" lista todo.
 COMPOSE     ?= docker compose
 DEV_COMPOSE  = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
-BACKUP_DIR   = docker/db/backups
-STAMP       := $(shell date +%Y%m%d_%H%M%S)
 
 .DEFAULT_GOAL := help
 .PHONY: help init up dev down restart build logs ps shell manage migrate \
@@ -61,10 +59,8 @@ demo: ## Carga datos FALSOS de prueba (solo en una base sin clientes)
 psql: ## Consola psql sobre la base interna
 	$(COMPOSE) exec db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
-backup: ## Genera un dump (formato custom) en docker/db/backups/
-	$(COMPOSE) exec -T db sh -c 'pg_dump -Fc -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' \
-		> $(BACKUP_DIR)/grafiexpress_$(STAMP).backup
-	@echo "Backup: $(BACKUP_DIR)/grafiexpress_$(STAMP).backup"
+backup: ## Backup inmediato (verificado) en docker/db/backups/; el diario es automático
+	$(COMPOSE) exec backup /scripts/backup.sh
 
 restore: ## Restaura un dump sobre la base actual: make restore f=ruta/al.backup
 	@test -n "$(f)" || { echo "Uso: make restore f=ruta/al/dump.backup"; exit 1; }

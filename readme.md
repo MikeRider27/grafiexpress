@@ -20,6 +20,7 @@ navegador → nginx (:APP_PORT, 8002 por defecto) → web (gunicorn :8000) → d
 | `web` | Django + gunicorn. Al arrancar espera a la base, corre `migrate` y `collectstatic` solo. | volúmenes `static` y `media` |
 | `nginx` | Proxy reverso; sirve `/static/` y `/media/` directamente. | — |
 | `jasper` | Genera los PDF de facturas y remisiones (JasperReports, Java 8). Solo red interna. | — |
+| `backup` | Backup diario de la base (02:00), verificado, con rotación de 14 días. | `docker/db/backups/` |
 
 Los datos sobreviven a `make down` / reinicios; solo se borran con `make reset-db`
 o `docker compose down -v`.
@@ -90,6 +91,19 @@ compras, pagos, stock, producción, comercial) usando la misma lógica del
 sistema, así que saldos, stock y cantidades entregadas/facturadas quedan
 consistentes. También crea dos usuarios vendedores de prueba
 (`vendedor_marta` / `vendedor_julio`, contraseña `demo1234`).
+
+### Backups
+
+El servicio `backup` hace un `pg_dump` todos los días a las `BACKUP_HORA`
+(02:00 por defecto), verifica que el archivo se pueda leer y borra los de más
+de `BACKUP_DIAS` días (14). Quedan en `docker/db/backups/` a nombre del
+usuario del host (`HOST_UID`/`HOST_GID`, 1000 por defecto).
+
+- Backup inmediato: `make backup`
+- Restaurar uno: `make restore f=docker/db/backups/grafiexpress_AAAAMMDD_HHMMSS.backup`
+
+⚠️ Están en el mismo disco que la base: para que sirvan ante una falla del
+servidor hay que copiar esa carpeta a otro lugar (NAS, nube, otro equipo).
 
 ### Operación diaria
 

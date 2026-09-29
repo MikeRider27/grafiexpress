@@ -115,6 +115,33 @@ services:
       - backend
     logging: *default-logging
 
+  # Backup diario de la base (mismo PostgreSQL 12, así pg_dump coincide con el
+  # servidor). Deja los dumps en docker/db/backups/ y borra los de más de
+  # BACKUP_DIAS días. Backup manual en cualquier momento: "make backup".
+  backup:
+    image: postgres:12-alpine
+    restart: unless-stopped
+    entrypoint: ["/tareas/diario.sh", "${BACKUP_HORA:-02:00}", "/scripts/backup.sh"]
+    # Los dumps quedan a nombre del usuario del host (no de root)
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-grafiexpress}
+      DB_USER: ${DB_USER:-grafiexpress}
+      DB_PASSWORD: ${DB_PASSWORD}
+      BACKUP_DIAS: ${BACKUP_DIAS:-14}
+      TZ: America/Asuncion
+    volumes:
+      - ./docker/tareas/diario.sh:/tareas/diario.sh:ro
+      - ./docker/db/backup.sh:/scripts/backup.sh:ro
+      - ./docker/db/backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    logging: *default-logging
+
 networks:
   backend:
     internal: true   # sin salida a internet: solo web <-> db
