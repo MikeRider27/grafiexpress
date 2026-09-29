@@ -27,8 +27,8 @@ class Recibo(models.Model):
     estado = models.IntegerField(choices=ESTADO_RECIBO, editable=False, default=PENDIENTE)
     presentado = models.BooleanField(default=False, editable=False)
 
-    def __unicode__(self):
-        return unicode("Recibo Nro.:" + self.numero + " - " + self.cliente.razon_social)
+    def __str__(self):
+        return str("Recibo Nro.:" + self.numero + " - " + self.cliente.razon_social)
 
     def get_total_facturas(self):
         detalles = DetalleDeRecibo.objects.filter(recibo_id=self.id)
@@ -106,8 +106,8 @@ class DetalleDeRecibo2(models.Model):
     cuenta_bancaria = models.ForeignKey('bancos.CuentaBancaria', null=True, blank=True)
     monto = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("Pago segun recibo Nro.: " + self.recibo.numero)
+    def __str__(self):
+        return str("Pago segun recibo Nro.: " + self.recibo.numero)
 
     def save(self, *args, **kwargs):
         if self.monto is None:
@@ -125,8 +125,8 @@ class PresentacionCobros(models.Model):
     cobrador = models.ForeignKey('funcionarios.Funcionario')
     total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
-    def __unicode__(self):
-        return unicode(str(self.fecha))
+    def __str__(self):
+        return str(str(self.fecha))
 
     def get_total(self):
         detalles = DetallePresentacion.objects.filter(presentacion=self)

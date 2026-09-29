@@ -54,7 +54,7 @@ def reporte_retiro(request, retiro_id):
         datos = datos + [(
 							Paragraph( (separador_de_miles(detalle.orden_de_trabajo.id) if detalle.orden_de_trabajo != None else ''), styles['Normal']),
                             Paragraph( detalle.deposito.nombre, styles['Normal']),
-                            Paragraph( detalle.material.__unicode__(), styles['Normal']),
+                            Paragraph( str(detalle.material), styles['Normal']),
 							Paragraph( separador_de_miles(detalle.cantidad), styles['Normal']),
 						)]
 

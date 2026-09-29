@@ -86,8 +86,8 @@ class Remision(models.Model):
     def get_numero_de_remision(self):
         return "%s-%s-%s" % (self.codigo_de_establecimiento, self.punto_de_expedicion, self.numero_de_remision)
 
-    def __unicode__(self):
-        return unicode("Remision Nro.: " + str(self.get_numero_de_remision()))
+    def __str__(self):
+        return str("Remision Nro.: " + str(self.get_numero_de_remision()))
 
 
 class DetalleDeRemision(models.Model):
@@ -199,7 +199,7 @@ class Venta(models.Model):
 
         super(Venta, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.condicion == CONTADO:
             return "Factura Contado Nro.: " + self.get_numero_de_factura()
         return "Factura Credito Nro.: " + self.get_numero_de_factura()

@@ -94,7 +94,7 @@ class MaterialListView(ListView):
             datos = self.get_queryset()
             for dato in datos:
                 lista_datos.append([
-                    dato.__unicode__(),
+                    str(dato),
                     dato.codigo,
                     dato.unidad_de_medida.nombre if dato.unidad_de_medida != None else '',
                     dato.categoria.nombre if dato.categoria != None else '',

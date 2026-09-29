@@ -35,8 +35,8 @@ class Cliente(models.Model):
     requiere_numero_de_recepcion = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
 
-    def __unicode__(self):
-        return unicode(self.razon_social)
+    def __str__(self):
+        return str(self.razon_social)
 
     def get_total_deuda(self):
         facturas = apps.get_model("ventas", "Venta").objects.filter(cliente_id=self.id).exclude(estado='A')
@@ -50,8 +50,8 @@ class Marca(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=False, null=False)
     nombre = models.CharField(max_length=100)
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
 
 class Contacto(models.Model):
@@ -60,8 +60,8 @@ class Contacto(models.Model):
     apellido = models.CharField(max_length=100)
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="teléfono")
 
-    def __unicode__(self):
-        return (unicode(self.nombre) + u" " + unicode(self.apellido))
+    def __str__(self):
+        return (str(self.nombre) + u" " + str(self.apellido))
 
     def get_cliente(self):
         return self.cliente.nombre

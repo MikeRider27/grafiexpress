@@ -28,7 +28,7 @@ class Proveedor(models.Model):
     plazo_de_credito = models.CharField(max_length=100)
     activo = models.BooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.razon_social
 
     def get_total_deuda(self):

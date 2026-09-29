@@ -115,7 +115,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-							detalle.descripcion.__unicode__(), 
+							str(detalle.descripcion), 
 							separador_de_miles(detalle.cantidad), 
 							separador_de_miles(detalle.precio_unitario),
 							separador_de_miles(detalle.get_subtotal())
@@ -126,7 +126,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -137,7 +137,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -148,7 +148,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -159,7 +159,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -170,7 +170,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -181,7 +181,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -192,7 +192,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -203,7 +203,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -214,7 +214,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -225,7 +225,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             separador_de_miles(detalle.descripcion.costo.detalle_orden_de_trabajo.orden_de_trabajo.id),
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())
@@ -236,7 +236,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
     for detalle in detalles:
         datos = datos + [(
                             '',
-                            detalle.descripcion.__unicode__(), 
+                            str(detalle.descripcion), 
                             separador_de_miles(detalle.cantidad), 
                             separador_de_miles(detalle.precio_unitario),
                             separador_de_miles(detalle.get_subtotal())

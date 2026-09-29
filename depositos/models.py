@@ -8,7 +8,7 @@ from datetime import date
 class Deposito(models.Model):
 	nombre = models.CharField(max_length=100)
 
-	def __unicode__(self):
+	def __str__(self):
 		return self.nombre
 
 
@@ -19,7 +19,7 @@ class Alta(models.Model):
 	fecha = models.DateField(default=date.today)
 	funcionario = models.ForeignKey("funcionarios.Funcionario", null=True, blank=True)
 
-	def __unicode__(self):
+	def __str__(self):
 		return "[Nro.: " + str(self.id) + "] - fecha: " + self.fecha.strftime("%d/%m/%Y") 
 
 class DetalleAlta(models.Model):
@@ -28,8 +28,8 @@ class DetalleAlta(models.Model):
 	cantidad = models.DecimalField(max_digits=15, decimal_places=2)
 	motivo = models.CharField(max_length=500, null=True, blank=True)
 
-	def __unicode__(self):
-		return self.material.__unicode__()
+	def __str__(self):
+		return str(self.material)
 
 	def save(self, *args, **kwargs):
 		super(DetalleAlta, self).save(*args, **kwargs)
@@ -51,7 +51,7 @@ class Baja(models.Model):
 	fecha = models.DateField(default=date.today)
 	funcionario = models.ForeignKey("funcionarios.Funcionario", null=True, blank=True)
 
-	def __unicode__(self):
+	def __str__(self):
 		return "[Nro.: " + str(self.id) + "] - fecha: " + self.fecha.strftime("%d/%m/%Y") 
 
 class DetalleBaja(models.Model):
@@ -60,8 +60,8 @@ class DetalleBaja(models.Model):
 	cantidad = models.DecimalField(max_digits=15, decimal_places=2)
 	motivo = models.CharField(max_length=500, null=True, blank=True)
 
-	def __unicode__(self):
-		return self.material.__unicode__()
+	def __str__(self):
+		return str(self.material)
 
 	def save(self, *args, **kwargs):
 		super(DetalleBaja, self).save(*args, **kwargs)
@@ -82,7 +82,7 @@ class Retiro(models.Model):
 	fecha = models.DateField(default=date.today)
 	funcionario = models.ForeignKey("funcionarios.Funcionario", null=True, blank=True)
 
-	def __unicode__(self):
+	def __str__(self):
 		return "[Nro.: " + str(self.id) + "] - fecha: " + self.fecha.strftime("%d/%m/%Y") 
 
 class DetalleRetiro(models.Model):
@@ -93,8 +93,8 @@ class DetalleRetiro(models.Model):
 	material = models.ForeignKey("materiales.Material")
 	cantidad = models.DecimalField(max_digits=15, decimal_places=2)
 
-	def __unicode__(self):
-		return self.material.__unicode__()
+	def __str__(self):
+		return str(self.material)
 
 
 	def save(self, *args, **kwargs):
@@ -117,7 +117,7 @@ class Devolucion(models.Model):
 	funcionario = models.ForeignKey("funcionarios.Funcionario", null=True, blank=True)
 	retiro = models.ForeignKey(Retiro, null=True, blank=False)
 
-	def __unicode__(self):
+	def __str__(self):
 		return "[Nro.: " + str(self.id) + "] - fecha: " + self.fecha.strftime("%d/%m/%Y") 
 
 class DetalleDevolucion(models.Model):
@@ -127,8 +127,8 @@ class DetalleDevolucion(models.Model):
 	deposito = models.ForeignKey(Deposito)
 
 
-	def __unicode__(self):
-		return self.detalle_retiro.material.__unicode__()
+	def __str__(self):
+		return str(self.detalle_retiro.material)
 
 	def save(self, *args, **kwargs):
 		super(DetalleDevolucion, self).save(*args, **kwargs)

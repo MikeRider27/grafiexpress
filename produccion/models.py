@@ -24,8 +24,8 @@ class CategoriaDeTrabajo(models.Model):
 
     nombre = models.CharField(max_length=100)
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
 
 class SubcategoriaDeTrabajo(models.Model):
@@ -36,8 +36,8 @@ class SubcategoriaDeTrabajo(models.Model):
     nombre = models.CharField(max_length=100)
     categoria = models.ForeignKey(CategoriaDeTrabajo, verbose_name="categoría")
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
 
 ORIGINALES = (
@@ -101,8 +101,8 @@ class OrdenDeTrabajo(models.Model):
     estado_produccion = models.CharField(max_length=12, choices=EstadoProceso.ESTADOS,
                                          default=EstadoProceso.NO_INICIADO)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.id) + "] " + self.nombre)
+    def __str__(self):
+        return str("[" + str(self.id) + "] " + self.nombre)
 
     def get_total(self):
         return self.cantidad * self.precio_unitario
@@ -243,8 +243,8 @@ class DetalleOrdenDeTrabajo(models.Model):
     cantidad_facturada = models.DecimalField(max_digits=15, decimal_places=2, default=0, editable=False)
     cantidad_no_facturada = models.DecimalField(max_digits=15, decimal_places=2, default=0, editable=False)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.orden_de_trabajo.id) + "] - " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.orden_de_trabajo.id) + "] - " + self.descripcion)
 
     def get_precio_unitario(self):
         return self.material.costo_actual
@@ -281,8 +281,8 @@ class ArchivoOrdenDeTrabajo(models.Model):
     orden_de_trabajo = models.ForeignKey(OrdenDeTrabajo)
     archivo = models.FileField(upload_to=get_file_path)
 
-    def __unicode__(self):
-        return unicode(self.archivo)
+    def __str__(self):
+        return str(self.archivo)
 
 
 class Costo(models.Model):
@@ -293,9 +293,9 @@ class Costo(models.Model):
     vendedor = models.ForeignKey('funcionarios.Funcionario', null=True, blank=True)
     estado = models.CharField(max_length=10, default="PENDIENTE")
 
-    def __unicode__(self):
-        return unicode(
-            self.detalle_orden_de_trabajo.orden_de_trabajo.__unicode__() + " - " + self.detalle_orden_de_trabajo.descripcion)
+    def __str__(self):
+        return str(
+            str(self.detalle_orden_de_trabajo.orden_de_trabajo) + " - " + self.detalle_orden_de_trabajo.descripcion)
 
     def get_estado(self):
         detalles_todos = PapelCosto.objects.filter(costo_id=self.id)
@@ -390,7 +390,7 @@ class Costo(models.Model):
         orden_de_trabajo.save()
 
     def get_orden_de_trabajo_unicode(self):
-        return self.detalle_orden_de_trabajo.orden_de_trabajo.__unicode__()
+        return str(self.detalle_orden_de_trabajo.orden_de_trabajo)
 
     def get_total_papel(self):
         detalles = PapelCosto.objects.filter(costo_id=self.id)
@@ -493,8 +493,8 @@ class PapelCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(
+    def __str__(self):
+        return str("[" + str(
             self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.tipo + " - " + self.gramaje + " - " + self.resma)
 
     def get_subtotal(self):
@@ -532,8 +532,8 @@ class PreprensaCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode(
+    def __str__(self):
+        return str(
             "[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.maquina.descripcion)
 
     def get_subtotal(self):
@@ -569,13 +569,13 @@ class TroquelCosto(models.Model):
     existente = models.BooleanField(default=False)
     precio = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.existente == True:
-            return unicode("[" + str(
+            return str("[" + str(
                 self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + "Troquel existente - " + str(
                 self.precio))
 
-        return unicode(
+        return str(
             "[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + "Troquel no existente - " + str(
                 self.precio))
 
@@ -592,8 +592,8 @@ class PosprensaServicioCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -631,8 +631,8 @@ class PosprensaMaterialCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -670,8 +670,8 @@ class PosprensaOtroServicioCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -709,8 +709,8 @@ class DatosDeBolsaCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -748,8 +748,8 @@ class RevistaCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return (self.cantidad * self.precio_unitario)
@@ -787,8 +787,8 @@ class CompuestoCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -826,8 +826,8 @@ class PlastificadoCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return self.cantidad * self.precio_unitario
@@ -865,8 +865,8 @@ class OtroGastoCosto(models.Model):
     oc_incompletas = models.BooleanField(default=True)
     precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
+    def __str__(self):
+        return str("[" + str(self.costo.detalle_orden_de_trabajo.orden_de_trabajo.id) + "] " + self.descripcion)
 
     def get_subtotal(self):
         return (self.cantidad * self.precio_unitario)
@@ -905,8 +905,8 @@ class Maquina(models.Model):
     activa = models.BooleanField(default=True)
     tercerizado = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
     def actualizar_disponibilidad(self, fecha, hora, borrado):
         if not borrado:
@@ -940,8 +940,8 @@ class Proceso(models.Model):
     fecha_de_entrega = models.DateField(blank=True, null=True)
     urgente = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return unicode(str(self.fecha_de_creacion.strftime('%d/%m/%Y')) + ' - ' + str(self.orden_de_trabajo))
+    def __str__(self):
+        return str(str(self.fecha_de_creacion.strftime('%d/%m/%Y')) + ' - ' + str(self.orden_de_trabajo))
 
     def estado_ot(self):
         return self.orden_de_trabajo.estado_produccion
@@ -1035,8 +1035,8 @@ class DetalleProceso(models.Model):
         super(DetalleProceso, self).delete(*args, **kwargs)
         maquina.actualizar_disponibilidad(date.today, date.today, True)
 
-    def __unicode__(self):
-        return unicode(str(self.proceso) + " - " + str(self.pliegos_a_realizar) + " pliegos")
+    def __str__(self):
+        return str(str(self.proceso) + " - " + str(self.pliegos_a_realizar) + " pliegos")
 
     def get_duracion(self):
         total_pasadas = self.pliegos_a_realizar * self.pasadas_por_pliego
@@ -1078,8 +1078,8 @@ class Programacion(models.Model):
     fecha_de_entrega = models.DateField(null=True, blank=True)
     realizada = models.BooleanField(default=False, editable=False)
 
-    def __unicode__(self):
-        return unicode(
+    def __str__(self):
+        return str(
             str(self.id) + " - " + str(self.maquina) + ' - ' + str(self.fecha_de_inicio.strftime('%d/%m/%Y')))
 
     def actualizar_fecha_de_entrega(self):
@@ -1117,8 +1117,8 @@ class DetalleProgramacion(models.Model):
         detalle_proceso.maquina.hora_disponible = self.hora_de_finalizacion
         detalle_proceso.maquina.save()
 
-    def __unicode__(self):
-        return unicode(str(self.programacion) + ' - ' + str(self.detalle_proceso))
+    def __str__(self):
+        return str(str(self.programacion) + ' - ' + str(self.detalle_proceso))
 
 
 class Produccion(models.Model):

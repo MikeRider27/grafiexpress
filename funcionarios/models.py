@@ -15,5 +15,5 @@ class Funcionario(models.Model):
     def get_full_name(self):
         return self.nombres + " " + self.apellidos
 
-    def __unicode__(self):
-        return unicode(self.get_full_name())
+    def __str__(self):
+        return str(self.get_full_name())

@@ -7,8 +7,8 @@ class Pago(models.Model):
     fecha = models.DateField(default=date.today)
     monto = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __unicode__(self):
-        return unicode("Pago a proveedor " + self.proveedor.razon_social)
+    def __str__(self):
+        return str("Pago a proveedor " + self.proveedor.razon_social)
 
     def get_total_facturas(self):
         detalles = DetalleDePago.objects.filter(pago_id=self.id)

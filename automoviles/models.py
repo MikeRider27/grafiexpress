@@ -6,5 +6,5 @@ class Automovil(models.Model):
     rua = models.CharField(max_length=100, verbose_name="numero de registro unico del automotor")
     rua_remolque = models.CharField(max_length=100, blank=True, null=True, verbose_name="numero de registro unico del automotor de remolquetracto o semiremolque")
 
-    def __unicode__(self):
-        return unicode(self.marca + ' - ' + self.rua)
+    def __str__(self):
+        return str(self.marca + ' - ' + self.rua)

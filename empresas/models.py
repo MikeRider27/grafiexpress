@@ -12,8 +12,8 @@ class Empresa(models.Model):
     telefono = models.CharField(max_length=20, null=True, blank=True, verbose_name="teléfono")
     email = models.EmailField(max_length=100, null=True, blank=True, verbose_name="e-mail")
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
 
 class Sucursal(models.Model):
@@ -27,8 +27,8 @@ class Sucursal(models.Model):
     telefono = models.CharField(max_length=20, null=True, blank=True, verbose_name="teléfono")
     email = models.CharField(max_length=100, null=True, blank=True, verbose_name="e-mail")
 
-    def __unicode__(self):
-        return (unicode(self.empresa.nombre) + u" - " + unicode(self.nombre))
+    def __str__(self):
+        return (str(self.empresa.nombre) + u" - " + str(self.nombre))
 
 
 class Timbrado(models.Model):
@@ -38,10 +38,10 @@ class Timbrado(models.Model):
     activo = models.BooleanField(default=True)
     empresa = models.ForeignKey(Empresa, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.empresa != None:
-            return (unicode(self.empresa.nombre) + u" " + unicode(self.numero))
-        return unicode(self.numero)
+            return (str(self.empresa.nombre) + u" " + str(self.numero))
+        return str(self.numero)
 
 
 FACTURA = 0
@@ -74,8 +74,8 @@ class Talonario(models.Model):
 
     activo = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return (unicode(self.sucursal.empresa.nombre) + u" - " + unicode(self.nombre))
+    def __str__(self):
+        return (str(self.sucursal.empresa.nombre) + u" - " + str(self.nombre))
 
     def get_siguiente(self):
         if self.ultimo_usado == None:

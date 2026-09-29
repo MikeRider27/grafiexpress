@@ -12,8 +12,8 @@ class ChequeRecibido(models.Model):
     fecha_de_emision = models.DateField(default=date.today)
     fecha_de_cobro = models.DateField(null=True, blank=True)
 
-    def __unicode__(self):
-        return unicode("Cheque " + self.numero + " | Gs." + separador_de_miles(self.monto))
+    def __str__(self):
+        return str("Cheque " + self.numero + " | Gs." + separador_de_miles(self.monto))
 
 
 class ChequeEmitido(models.Model):
@@ -24,5 +24,5 @@ class ChequeEmitido(models.Model):
     fecha_de_emision = models.DateField(default=date.today)
     fecha_de_cobro = models.DateField(null=True, blank=True)
 
-    def __unicode__(self):
-        return unicode("Cheque " + self.numero + " | Gs." + separador_de_miles(self.monto))
+    def __str__(self):
+        return str("Cheque " + self.numero + " | Gs." + separador_de_miles(self.monto))

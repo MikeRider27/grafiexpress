@@ -110,7 +110,7 @@ class AltaListView(ListView):
                 lista_datos.append([
                     dato.alta.fecha.strftime('%d/%m/%Y'),
                     dato.alta.deposito.nombre,
-                    dato.material.__unicode__(),
+                    str(dato.material),
                     separador_de_miles(dato.cantidad),
                     dato.motivo,
                     dato.alta.funcionario.get_full_name()
@@ -182,7 +182,7 @@ class BajaListView(ListView):
                 lista_datos.append([
                     dato.baja.fecha.strftime('%d/%m/%Y'),
                     dato.baja.deposito.nombre,
-                    dato.material.__unicode__(),
+                    str(dato.material),
                     separador_de_miles(dato.cantidad),
                     dato.motivo,
                     dato.baja.funcionario.get_full_name()
@@ -264,7 +264,7 @@ class RetiroListView(ListView):
                 lista_datos.append([
                     dato.retiro.fecha.strftime('%d/%m/%Y'),
                     dato.deposito.nombre,
-                    dato.material.__unicode__(),
+                    str(dato.material),
                     separador_de_miles(dato.cantidad),
                     dato.retiro.funcionario.get_full_name()
                 ])
@@ -344,7 +344,7 @@ class DevolucionListView(ListView):
                     dato.devolucion.fecha.strftime('%d/%m/%Y'),
                     dato.detalle_retiro.deposito.nombre,
                     dato.deposito.nombre,
-                    dato.detalle_retiro.material.__unicode__(),
+                    str(dato.detalle_retiro.material),
                     separador_de_miles(dato.detalle_retiro.cantidad),
                     separador_de_miles(dato.cantidad),
                     dato.detalle_retiro.retiro.funcionario.get_full_name(),

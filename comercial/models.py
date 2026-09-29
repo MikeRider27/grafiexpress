@@ -45,8 +45,8 @@ class Presupuesto(models.Model):
     class Meta:
         verbose_name_plural = "Presupuestos"
 
-    def __unicode__(self):
-        return unicode(str(self.id) + ": " + self.trabajo + '. -' + self.cliente.nombre)
+    def __str__(self):
+        return str(str(self.id) + ": " + self.trabajo + '. -' + self.cliente.nombre)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -73,8 +73,8 @@ class Canal(models.Model):
     nombre = models.CharField("Nombre", max_length=50)
     activo = models.BooleanField(default=True)
 
-    def __unicode__(self):
-        return unicode(self.nombre)
+    def __str__(self):
+        return str(self.nombre)
 
     class Meta:
         verbose_name_plural = "Canales"
@@ -111,5 +111,5 @@ class Actividad(models.Model):
     def get_self_path(self):
         return self.documentos.path
 
-    def __unicode__(self):
-        return unicode(str(self.id) + ': ' + self.cliente.nombre + ' - ')
+    def __str__(self):
+        return str(str(self.id) + ': ' + self.cliente.nombre + ' - ')

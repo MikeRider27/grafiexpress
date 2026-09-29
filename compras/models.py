@@ -33,8 +33,8 @@ class OrdenDeCompra(models.Model):
     responsable = models.CharField(max_length=50, null=True, blank=True)
     creado_por = models.ForeignKey(User, blank=True, null=True)
 
-    def __unicode__(self):
-        return unicode("Orden de compra Nro.: " + str(self.id))
+    def __str__(self):
+        return str("Orden de compra Nro.: " + str(self.id))
 
     def get_total(self):
         total = 0
@@ -440,7 +440,7 @@ class Compra(models.Model):
 
         super(Compra, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.condicion == CONTADO:
             return "Factura Contado Nro.: " + self.get_numero_de_factura()
         return "Factura Credito Nro.: " + self.get_numero_de_factura()

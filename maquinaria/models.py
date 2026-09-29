@@ -10,5 +10,5 @@ class Maquina(models.Model):
     descripcion = models.CharField(max_length=150, verbose_name="descripción")
     precio = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
-    def __unicode__(self):
-        return unicode(self.descripcion)
+    def __str__(self):
+        return str(self.descripcion)
