@@ -64,6 +64,9 @@
 {% endif %}
 </style>
 
+    <!-- Ajustes responsivos globales (van últimos para ganar sobre el tema) -->
+    <link rel="stylesheet" href="{% static 'css/grafiexpress-responsive.css' %}">
+
 </head>
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
@@ -105,7 +108,7 @@
 
 	        {% if request.path != "/admin/" %}
             <div class="navbar-default sidebar" role="navigation">
-                <div class="sidebar-nav navbar-expand">
+                <div class="sidebar-nav navbar-collapse">
                 {% include "admin/left_menu.html" %}
                 </div>
                 <!-- /.sidebar-collapse -->
@@ -174,6 +177,7 @@
 
 
     {% block extrajs %}{% endblock %}
+    <script src="{% static 'js/grafiexpress-responsive.js' %}"></script>
     
     {% block footer %}<div id="footer"></div>{% endblock %}
 

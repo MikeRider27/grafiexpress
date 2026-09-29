@@ -1,0 +1,254 @@
+/*
+ * Ajustes responsivos globales de GrafiExpress (se carga último en admin/base.html).
+ * Complementa a static/js/grafiexpress-responsive.js, que marca las tablas.
+ *
+ * Breakpoints de Bootstrap 3: < 768px celular, 768-991px tablet.
+ */
+
+/* Nada debe provocar scroll horizontal de la página entera */
+img, select, input, textarea {
+    max-width: 100%;
+}
+
+/* La grilla de módulos de la portada usa .row sin .container */
+#id_modulos.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Tablas de resultados envueltas por JS: scroll horizontal propio, no de la página */
+.gx-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 15px;
+}
+.gx-table-scroll > table {
+    margin-bottom: 0;
+}
+
+/* Botón "Filtros" (solo se muestra en celular, lo crea el JS) */
+.gx-filter-toggle {
+    display: none;
+}
+
+/* Paginación y grupos de botones: que bajen de línea en vez de desbordar */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+}
+.pagination > li > a,
+.pagination > li > span {
+    margin-bottom: 4px;
+}
+
+/* .container de Bootstrap tiene ancho fijo (1170px) que no descuenta el menú lateral */
+#id_content .container {
+    width: auto;
+    max-width: 100%;
+}
+
+/* ------------------------------------------------------------------ tablet */
+@media (max-width: 991px) {
+    /* Los .row sueltos (sin .container) no deben sacar el margen negativo fuera de la pantalla */
+    #id_content .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #content h1 {
+        font-size: 28px;
+    }
+}
+
+/* Tablet y notebook chica: con el menú lateral de 200px no entran 4 columnas */
+@media (max-width: 1199px) {
+    /* Filtros en 2 columnas (etiqueta | campo) en vez de 4 */
+    table.gx-filter > tbody > tr {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    table.gx-filter > tbody > tr > th {
+        flex: 0 0 35%;
+        max-width: 35%;
+    }
+    table.gx-filter > tbody > tr > td {
+        flex: 0 0 65%;
+        max-width: 65%;
+    }
+    table.gx-filter > tbody > tr > td[colspan] {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+    table.gx-filter input[type=text],
+    table.gx-filter input[type=date],
+    table.gx-filter input:not([type]),
+    table.gx-filter select,
+    table.gx-filter .chosen-container {
+        width: 100% !important;
+        max-width: 100%;
+    }
+}
+
+/* ----------------------------------------------------------------- celular */
+@media (max-width: 767px) {
+    /* Menú lateral: plegado detrás del botón ☰ (ver .navbar-collapse en base.html) */
+    .navbar .navbar-toggle {
+        display: block;
+        border-color: rgba(255, 255, 255, .6);
+        margin-right: 10px;
+    }
+    .navbar .navbar-toggle .icon-bar {
+        background-color: #fff;
+    }
+    .navbar .navbar-toggle:hover,
+    .navbar .navbar-toggle:focus {
+        background-color: rgba(255, 255, 255, .15);
+    }
+    .navbar-top-links {
+        position: absolute;
+        top: 0;
+        right: 60px;
+    }
+    .navbar-top-links .dropdown-menu {
+        position: absolute;
+        right: 0;
+        left: auto;
+    }
+    .sidebar {
+        margin-top: 0;
+    }
+
+    #id_content {
+        padding: 0 10px;
+    }
+    #content {
+        padding: 0;
+    }
+    #content h1 {
+        font-size: 22px;
+        margin: 15px 0 10px;
+    }
+    #id_content h2 {
+        font-size: 20px;
+    }
+    #id_content h3 {
+        font-size: 18px;
+    }
+
+    /* Filtros plegables: botón visible, tabla oculta hasta que se abre */
+    .gx-filter-toggle {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+    .gx-filter-toggle .gx-badge {
+        margin-left: 6px;
+    }
+    .gx-filter-toggle .gx-chevron {
+        float: right;
+        margin-top: 3px;
+    }
+    table.gx-filter.gx-collapsed {
+        display: none !important;
+    }
+
+    /* Tablas de filtros (label | campo | label | campo): se apilan en una columna */
+    table.gx-filter,
+    table.gx-filter > tbody,
+    table.gx-filter > tbody > tr,
+    table.gx-filter > tbody > tr > th,
+    table.gx-filter > tbody > tr > td {
+        display: block;
+        width: 100% !important;
+    }
+    table.gx-filter > tbody > tr > th,
+    table.gx-filter > tbody > tr > td {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+    table.gx-filter > tbody > tr > th {
+        border-bottom: 0 !important;
+        padding-bottom: 2px !important;
+    }
+    table.gx-filter > tbody > tr > td {
+        border-top: 0 !important;
+        padding-top: 2px !important;
+    }
+    table.gx-filter > tbody > tr > th:empty,
+    table.gx-filter > tbody > tr > td:empty {
+        display: none;
+    }
+    table.gx-filter input[type=text],
+    table.gx-filter input[type=date],
+    table.gx-filter input[type=number],
+    table.gx-filter input:not([type]),
+    table.gx-filter select,
+    table.gx-filter .chosen-container {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    /* Formularios del admin: etiquetas arriba y campos a lo ancho */
+    .form-row .field-box,
+    fieldset .form-row > div {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+    }
+    .form-row input[type=text],
+    .form-row input[type=number],
+    .form-row input[type=email],
+    .form-row input[type=password],
+    .form-row textarea,
+    .form-row select,
+    .form-row .select2-container,
+    .form-row .chosen-container {
+        max-width: 100%;
+    }
+    .form-row .select2-container {
+        width: 100% !important;
+    }
+    .gx-table-scroll .select2-container {
+        min-width: 180px;
+    }
+    .submit-row input,
+    .submit-row a,
+    .submit-row .btn {
+        margin-bottom: 6px;
+    }
+
+    /* Botones de acción de las listas: área táctil cómoda */
+    .btn-xs {
+        padding: 4px 8px;
+    }
+
+    /* Modales de Bootstrap a lo ancho */
+    .modal-dialog {
+        margin: 10px;
+    }
+}
+
+/* ------------------------------------------------------------ login (celular) */
+@media (max-width: 767px) {
+    body.login #container {
+        width: auto;
+        max-width: 100%;
+        margin: 20px 12px;
+    }
+    body.login #content {
+        padding: 15px;
+    }
+    body.login .form-row input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px;   /* evita el zoom automático de iOS al enfocar */
+        padding: 8px;
+    }
+    body.login .submit-row input {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+    }
+}
