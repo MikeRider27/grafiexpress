@@ -451,18 +451,15 @@ class DetalleProcesoForm(forms.ModelForm):
         required=False,
         label="Pasadas/hr"
     )
-    tercerizado = forms.CharField(
-        widget=forms.HiddenInput(
-            attrs={'style': 'text-align:right', 'size': '12', 'class': 'auto'}),
-        required=False
-    )
+    # Bandera 1/0 que usa proceso.js (no es numérico: sin class "auto")
+    tercerizado = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
         super(DetalleProcesoForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
             self.initial['pasadas_por_hora'] = instance.maquina.pasadas_por_hora
-            self.initial['tercerizado'] = instance.maquina.tercerizado
+            self.initial['tercerizado'] = 1 if instance.maquina.tercerizado else 0
         self.fields['pasadas_por_hora'].widget.attrs['readonly'] = True
         self.fields['tercerizado'].widget.attrs['readonly'] = True
 
