@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 
 from datetime import datetime
@@ -70,7 +71,7 @@ def get_venta(request):
         return HttpResponse(json.dumps(result_set),
                             content_type='application/json')
 
-    venta = Venta.objects.get(pk=venta_id)
+    venta = get_object_or_404(Venta, pk=venta_id)
 
     result_set.append({
         'total': separador_de_miles(venta.total),
@@ -89,7 +90,7 @@ def get_plazo_credito(request):
     if cliente_id == "":
         return HttpResponse(json.dumps(results), content_type='application/json')
 
-    cliente = Cliente.objects.get(pk=cliente_id)
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
     import re
     plazo_credito = int((re.search(r'\d+', cliente.plazo_de_credito or '0')).group()) or 30
     fecha = timezone.now()

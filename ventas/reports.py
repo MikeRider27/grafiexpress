@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.shortcuts import get_object_or_404
 from decimal import Decimal
 
 from datetime import datetime
@@ -37,7 +38,7 @@ def imprimir_remision_grafiexpress(request, pk):
 
     ################ Escribir textos flotantes en coordenadas (X,Y) ################
 
-    remision = Remision.objects.get(pk=pk)
+    remision = get_object_or_404(Remision, pk=pk)
 
     # fecha de emision
     p.drawString(4*cm,19.75*cm, remision.fecha_de_emision.strftime("%d/%m/%Y")) 
@@ -158,7 +159,7 @@ def imprimir_venta_grafiexpress(request, pk):
 
     ################ Escribir textos flotantes en coordenadas (X,Y) ################
 
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
 
     # fecha
     p.drawString(2.5*cm, 22.45*cm, venta.fecha_de_emision.strftime("%d"))  # dia
@@ -292,8 +293,7 @@ def imprimir_venta_grafiexpress(request, pk):
 def pdf_factura(request, pk):
     from decimal import Decimal
     
-    factura = Venta.objects.filter(pk=pk)
-    factura = factura.get()
+    factura = get_object_or_404(Venta, pk=pk)
     remisiones = ""
     for fact in factura.ventaremision_set.all():
         remisiones = remisiones + "; " + fact.remision.codigo_de_establecimiento + "-" +\
@@ -343,9 +343,7 @@ def pdf_factura(request, pk):
 
 
 def pdf_remision(request, pk):
-    remision = Remision.objects.filter(pk=pk)
-    if remision:
-        remision = remision.get()
+    remision = get_object_or_404(Remision, pk=pk)
 
     reporte = "remision_triplicado.jasper"
     response = HttpResponse(content_type='application/pdf')
@@ -377,7 +375,7 @@ def imprimir_remision_gesa(request, pk):
 
     ################ Escribir textos flotantes en coordenadas (X,Y) ################
 
-    remision = Remision.objects.get(pk=pk)
+    remision = get_object_or_404(Remision, pk=pk)
 
     # fecha de emision
     p.drawString(3.5 * cm, 19.5 * cm, remision.fecha_de_emision.strftime("%d/%m/%Y"))
@@ -500,7 +498,7 @@ def imprimir_venta_gesa(request, pk):
 
     ################ Escribir textos flotantes en coordenadas (X,Y) ################
 
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
 
     # fecha
     p.drawString(2.5 * cm, 22.2 * cm, venta.fecha_de_emision.strftime("%d"))  # dia

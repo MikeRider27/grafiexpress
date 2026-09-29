@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.http.response import JsonResponse
 
 from cobros.models import Recibo
@@ -10,7 +11,7 @@ def get_recibo(request):
     if recibo_id == "":
         return JsonResponse(datos)
 
-    recibo = Recibo.objects.get(pk=recibo_id)
+    recibo = get_object_or_404(Recibo, pk=recibo_id)
     datos.update({'subtotal': int(recibo.monto)})
 
     return JsonResponse(datos)

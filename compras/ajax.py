@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 
 from django.http.response import HttpResponse
@@ -18,7 +19,7 @@ def get_compra(request):
         return HttpResponse(json.dumps(result_set),
                             content_type='application/json')
 
-    compra = Compra.objects.get(pk=compra_id)
+    compra = get_object_or_404(Compra, pk=compra_id)
 
     result_set.append({
         'total': separador_de_miles(compra.total),
@@ -37,7 +38,7 @@ def get_plazo_credito(request):
     if proveedor_id == "":
         return HttpResponse(json.dumps(results), content_type='application/json')
 
-    proveedor = Proveedor.objects.get(pk=proveedor_id)
+    proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
     import re
     plazo_credito = int((re.search(r'\d+', proveedor.plazo_de_credito or '0')).group()) or 30
     fecha = timezone.now()

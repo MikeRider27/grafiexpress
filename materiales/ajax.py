@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 from django.http import HttpResponse
 from materiales.models import *
@@ -12,7 +13,7 @@ def get_material(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    material = Material.objects.get(pk = material_id)
+    material = get_object_or_404(Material, pk=material_id)
 
     result_set.append({
         'material': material.descripcion,

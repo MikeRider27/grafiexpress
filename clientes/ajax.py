@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 from django.http.response import JsonResponse
 from django.http import HttpResponse
@@ -14,7 +15,7 @@ def get_cliente(request):
         return HttpResponse(json.dumps(result_set),
                             content_type='application/json')
 
-    cliente = Cliente.objects.get(pk=cliente_id)
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
 
     result_set.append({
         'limitedecredito': separador_de_miles(cliente.limite_de_credito) if cliente.limite_de_credito else '',
@@ -36,7 +37,7 @@ def get_clientedecontacto(request):
     if contacto_id == "":
         return JsonResponse(results)
 
-    contacto = Contacto.objects.get(pk=contacto_id)
+    contacto = get_object_or_404(Contacto, pk=contacto_id)
     cliente = Cliente.objects.get(pk=contacto.cliente_id)
     results.update({'cliente': str(cliente), 'cliente_id': contacto.cliente_id})
 

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
@@ -29,7 +30,7 @@ def reporte_orden_de_compra(request, orden_de_compra_id):
                             )
     reporte = []
     styles = getSampleStyleSheet()
-    orden_de_compra = OrdenDeCompra.objects.get(pk=orden_de_compra_id)
+    orden_de_compra = get_object_or_404(OrdenDeCompra, pk=orden_de_compra_id)
 
     numero = "Numero: " + str(orden_de_compra.id)
     # reporte.append(numero)

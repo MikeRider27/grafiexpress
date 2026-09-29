@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 from django.http import HttpResponse
 from empresas.models import *
@@ -11,7 +12,7 @@ def get_empresa(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    empresa = Empresa.objects.get(pk = empresa_id)
+    empresa = get_object_or_404(Empresa, pk=empresa_id)
 
     result_set.append({
         'timbrado': empresa.timbrado
@@ -30,7 +31,7 @@ def get_talonario(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    talonario = Talonario.objects.get(pk = talonario_id)
+    talonario = get_object_or_404(Talonario, pk=talonario_id)
 
     result_set.append({
         'timbrado': talonario.timbrado.numero if talonario.tipo_de_talonario != RECIBO else '',

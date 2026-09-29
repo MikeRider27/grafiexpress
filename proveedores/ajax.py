@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 
 from django.http import HttpResponse
@@ -15,7 +16,7 @@ def get_proveedor(request):
         return HttpResponse(json.dumps(result_set),
                             content_type='application/json')
 
-    proveedor = Proveedor.objects.get(pk=proveedor_id)
+    proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
 
     result_set.append({
         'contacto': proveedor.contacto,

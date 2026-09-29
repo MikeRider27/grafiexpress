@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 from django.http import HttpResponse, JsonResponse
 from produccion.models import *
@@ -13,7 +14,7 @@ def get_ordendetrabajo(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk = orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
 
     result_set.append({
         'ot': orden_de_trabajo.id,
@@ -42,7 +43,7 @@ def get_detalleordendetrabajo(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    detalle_orden_de_trabajo = DetalleOrdenDeTrabajo.objects.get(pk = detalle_orden_de_trabajo_id)
+    detalle_orden_de_trabajo = get_object_or_404(DetalleOrdenDeTrabajo, pk=detalle_orden_de_trabajo_id)
 
     result_set.append({
         #cabecera
@@ -80,7 +81,7 @@ def get_papelcosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    papelcosto = PapelCosto.objects.get(pk = papelcosto_id)
+    papelcosto = get_object_or_404(PapelCosto, pk=papelcosto_id)
 
     result_set.append({
         'cantidad': separador_de_miles(papelcosto.cantidad - papelcosto.cantidad_en_oc),
@@ -102,7 +103,7 @@ def get_preprensacosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    preprensacosto = PreprensaCosto.objects.get(pk = preprensacosto_id)
+    preprensacosto = get_object_or_404(PreprensaCosto, pk=preprensacosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(preprensacosto.cantidad - preprensacosto.cantidad_en_oc),
@@ -124,7 +125,7 @@ def get_troquelcosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    troquelcosto = TroquelCosto.objects.get(pk = troquelcosto_id)
+    troquelcosto = get_object_or_404(TroquelCosto, pk=troquelcosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(1),
@@ -146,7 +147,7 @@ def get_posprensaserviciocosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    posprensaserviciocosto = PosprensaServicioCosto.objects.get(pk = posprensaserviciocosto_id)
+    posprensaserviciocosto = get_object_or_404(PosprensaServicioCosto, pk=posprensaserviciocosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(posprensaserviciocosto.cantidad - posprensaserviciocosto.cantidad_en_oc),
@@ -168,7 +169,7 @@ def get_posprensamaterialcosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    posprensamaterialcosto = PosprensaMaterialCosto.objects.get(pk = posprensamaterialcosto_id)
+    posprensamaterialcosto = get_object_or_404(PosprensaMaterialCosto, pk=posprensamaterialcosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(posprensamaterialcosto.cantidad - posprensamaterialcosto.cantidad_en_oc),
@@ -190,7 +191,7 @@ def get_posprensaotroserviciocosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    posprensaotroserviciocosto = PosprensaOtroServicioCosto.objects.get(pk = posprensaotroserviciocosto_id)
+    posprensaotroserviciocosto = get_object_or_404(PosprensaOtroServicioCosto, pk=posprensaotroserviciocosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(posprensaotroserviciocosto.cantidad - posprensaotroserviciocosto.cantidad_en_oc),
@@ -212,7 +213,7 @@ def get_datosdebolsacosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    datosdebolsacosto = DatosDeBolsaCosto.objects.get(pk = datosdebolsacosto_id)
+    datosdebolsacosto = get_object_or_404(DatosDeBolsaCosto, pk=datosdebolsacosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(datosdebolsacosto.cantidad - datosdebolsacosto.cantidad_en_oc),
@@ -234,7 +235,7 @@ def get_revistacosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    revistacosto = RevistaCosto.objects.get(pk = revistacosto_id)
+    revistacosto = get_object_or_404(RevistaCosto, pk=revistacosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(revistacosto.cantidad - revistacosto.cantidad_en_oc),
@@ -256,7 +257,7 @@ def get_compuestocosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    compuestocosto = CompuestoCosto.objects.get(pk = compuestocosto_id)
+    compuestocosto = get_object_or_404(CompuestoCosto, pk=compuestocosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(compuestocosto.cantidad - compuestocosto.cantidad_en_oc),
@@ -278,7 +279,7 @@ def get_plastificadocosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    plastificadocosto = PlastificadoCosto.objects.get(pk = plastificadocosto_id)
+    plastificadocosto = get_object_or_404(PlastificadoCosto, pk=plastificadocosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(plastificadocosto.cantidad - plastificadocosto.cantidad_en_oc),
@@ -300,7 +301,7 @@ def get_otrogastocosto(request):
         return HttpResponse(json.dumps(result_set), 
                             content_type='application/json')
 
-    otrogastocosto = OtroGastoCosto.objects.get(pk = otrogastocosto_id)
+    otrogastocosto = get_object_or_404(OtroGastoCosto, pk=otrogastocosto_id)
 
     result_set.append({
         'cantidad':separador_de_miles(otrogastocosto.cantidad - otrogastocosto.cantidad_en_oc),
@@ -319,7 +320,7 @@ def get_maquina(request):
     if maquina_id == "":
         return JsonResponse(datos)
 
-    maquina = Maquina.objects.get(pk=maquina_id)
+    maquina = get_object_or_404(Maquina, pk=maquina_id)
     if maquina.tercerizado:
         tercerizado = 1
     else:
@@ -340,7 +341,7 @@ def get_detalle_proceso(request):
     if detalle_proceso_id == "":
         return JsonResponse(datos)
 
-    detalle_proceso = DetalleProceso.objects.get(pk=detalle_proceso_id)
+    detalle_proceso = get_object_or_404(DetalleProceso, pk=detalle_proceso_id)
     fecha_de_inicio = detalle_proceso.fecha_de_inicio
     hora_de_inicio = detalle_proceso.hora_de_inicio
     fecha_de_finalizacion = detalle_proceso.fecha_de_finalizacion
@@ -361,7 +362,7 @@ def get_detalle_programacion(request):
     if detalle_programacion_id == "":
         return JsonResponse(datos)
 
-    detalle_programacion = DetalleProgramacion.objects.get(pk=detalle_programacion_id)
+    detalle_programacion = get_object_or_404(DetalleProgramacion, pk=detalle_programacion_id)
     fecha_de_inicio = detalle_programacion.fecha_de_inicio
     hora_de_inicio = detalle_programacion.hora_de_inicio
     fecha_de_finalizacion = detalle_programacion.fecha_de_finalizacion

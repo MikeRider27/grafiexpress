@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import datetime, calendar
 
 from django.views import generic
@@ -69,7 +70,7 @@ class PresupuestoListView(generic.ListView):
 
 def marcar_presupuesto_enviado(request, presupuesto_id):
     context = RequestContext(request)
-    presupuesto = Presupuesto.objects.get(pk=presupuesto_id)
+    presupuesto = get_object_or_404(Presupuesto, pk=presupuesto_id)
     if request.method == 'POST':
         presupuesto.estado = EstadoPresupuestos.ENVIADO
         presupuesto.save()

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 # -*- coding: utf-8 -*-
 import datetime
 import time
@@ -63,7 +64,7 @@ def rendicion_pdf(request, id):
         row -= 14
         canvas.drawString(230, row, "Total: %s Gs." % separador_de_miles(total_rendicion))
 
-    rendicion = PresentacionCobros.objects.get(pk=id)
+    rendicion = get_object_or_404(PresentacionCobros, pk=id)
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % str(rendicion)

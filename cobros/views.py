@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -200,7 +201,7 @@ class ReciboListView(ListView):
 # @permission_required('recibo.print_recibo')
 def imprimir_recibo(request, pk):
     context = RequestContext(request)
-    recibo = Recibo.objects.get(pk=pk)
+    recibo = get_object_or_404(Recibo, pk=pk)
     if request.method == 'POST':
         recibo.estado = 1  # PROCESADO
         recibo.save()
@@ -213,7 +214,7 @@ def imprimir_recibo(request, pk):
 # @permission_required('recibo.cancel_recibo')
 def anular_recibo(request, pk):
     context = RequestContext(request)
-    recibo = Recibo.objects.get(pk=pk)
+    recibo = get_object_or_404(Recibo, pk=pk)
     if request.method == 'POST':
         recibo.estado = 2  # ANULADO
         recibo.save()
@@ -234,7 +235,7 @@ def anular_recibo(request, pk):
 # @permission_required('recibo.cancel_recibo')
 def cancelar_anular_recibo(request, pk):
     context = RequestContext(request)
-    recibo = Recibo.objects.get(pk=pk)
+    recibo = get_object_or_404(Recibo, pk=pk)
     if request.method == 'POST':
         recibo.estado = 1  # PROCESADO
         recibo.save()
@@ -308,7 +309,7 @@ class EstadoDeCuentaListView(ListView):
         context['q_fecha_de_emision_desde'] = self.request.GET.get('q_fecha_de_emision_desde', '')
         context['q_fecha_de_vencimiento_desde'] = self.request.GET.get('q_fecha_de_vencimiento_desde', '')
         context['q_fecha_de_vencimiento_hasta'] = self.request.GET.get('q_fecha_de_vencimiento_hasta', '')
-        context['cliente'] = Cliente.objects.get(pk=self.kwargs['clienteid'])
+        context['cliente'] = get_object_or_404(Cliente, pk=self.kwargs['clienteid'])
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -449,7 +450,7 @@ class CobroListView(ListView):
 # @permission_required('venta.print_venta')
 def imprimir_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'C'  # CONFIRMADO
         venta.save()
@@ -463,7 +464,7 @@ def imprimir_venta(request, pk):
 # @permission_required('venta.cancel_venta')
 def anular_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'A'  # ANULADO
         # venta.fecha_de_anulacion = date.today
@@ -487,7 +488,7 @@ def anular_venta(request, pk):
 # @permission_required('venta.cancel_venta')
 def cancelar_anular_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'C'  # CONFIRMADO
         venta.save()

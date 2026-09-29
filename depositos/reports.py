@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
@@ -32,7 +33,7 @@ def reporte_retiro(request, retiro_id):
     header = Paragraph("Retiro", styles['Title'])
     reporte.append(header)
 
-    retiro = Retiro.objects.get(pk=retiro_id)
+    retiro = get_object_or_404(Retiro, pk=retiro_id)
 
     numero = Paragraph("Numero: %s" % separador_de_miles(retiro_id), styles['Normal'])
     reporte.append(numero)

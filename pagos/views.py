@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
 from django.shortcuts import render_to_response, redirect
@@ -130,7 +131,7 @@ class EstadoDeCuentaProveedorListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(EstadoDeCuentaProveedorListView, self).get_context_data(**kwargs)
         context['q'] = self.request.GET.get('q', '')
-        context['proveedor'] = Proveedor.objects.get(pk=self.kwargs['proveedorid'])
+        context['proveedor'] = get_object_or_404(Proveedor, pk=self.kwargs['proveedorid'])
         return context
 
 

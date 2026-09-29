@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import time
 from io import BytesIO
 
@@ -196,7 +197,7 @@ class OrdenDeTrabajoListView(ListView):
 #@permission_required('orden_de_trabajo.cancel_orden_de_trabajo')
 def marcar_orden_de_trabajo_aprobada(request, orden_de_trabajo_id):
     context = RequestContext(request)
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk=orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
     if request.method == 'POST':
         orden_de_trabajo.prueba_realizada = True  
         orden_de_trabajo.save()
@@ -208,7 +209,7 @@ def marcar_orden_de_trabajo_aprobada(request, orden_de_trabajo_id):
 
 def marcar_orden_de_trabajo_desaprobada(request, orden_de_trabajo_id):
     context = RequestContext(request)
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk=orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
     if request.method == 'POST':
         orden_de_trabajo.prueba_realizada = False  
         orden_de_trabajo.save()
@@ -221,7 +222,7 @@ def marcar_orden_de_trabajo_desaprobada(request, orden_de_trabajo_id):
 #@permission_required('orden_de_trabajo.cancel_orden_de_trabajo')
 def anular_orden_de_trabajo(request, orden_de_trabajo_id):
     context = RequestContext(request)
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk=orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
     if request.method == 'POST':
         orden_de_trabajo.anulada = True  
         orden_de_trabajo.save()
@@ -233,7 +234,7 @@ def anular_orden_de_trabajo(request, orden_de_trabajo_id):
 
 def desanular_orden_de_trabajo(request, orden_de_trabajo_id):
     context = RequestContext(request)
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk=orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
     if request.method == 'POST':
         orden_de_trabajo.anulada = False  
         orden_de_trabajo.save()

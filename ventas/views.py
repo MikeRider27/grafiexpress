@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -161,7 +162,7 @@ class RemisionListView(ListView):
 #@permission_required('venta.print_remision')
 def imprimir_remision(request, pk):
     context = RequestContext(request)
-    remision = Remision.objects.get(pk=pk)
+    remision = get_object_or_404(Remision, pk=pk)
     if request.method == 'POST':
         remision.estado = 'C'  # CONFIRMADO
         remision.save()
@@ -173,7 +174,7 @@ def imprimir_remision(request, pk):
 #@permission_required('venta.cancel_remision')
 def anular_remision(request, pk):
     context = RequestContext(request)
-    remision = Remision.objects.get(pk=pk)
+    remision = get_object_or_404(Remision, pk=pk)
     if request.method == 'POST':
         remision.estado = 'A'  # ANULADO
         remision.save()
@@ -197,7 +198,7 @@ def anular_remision(request, pk):
 #@permission_required('venta.cancel_remision')
 def cancelar_anular_remision(request, pk):
     context = RequestContext(request)
-    remision = Remision.objects.get(pk=pk)
+    remision = get_object_or_404(Remision, pk=pk)
     if request.method == 'POST':
         remision.estado = 'C'  # CONFIRMADO
         remision.save()
@@ -369,7 +370,7 @@ class VentaListView(ListView):
 #@permission_required('venta.print_venta')
 def imprimir_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'C'  # CONFIRMADO
         venta.save()
@@ -383,7 +384,7 @@ def imprimir_venta(request, pk):
 #@permission_required('venta.cancel_venta')
 def anular_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'A'  # ANULADO
         # venta.fecha_de_anulacion = date.today
@@ -418,7 +419,7 @@ def anular_venta(request, pk):
 #@permission_required('venta.cancel_venta')
 def cancelar_anular_venta(request, pk):
     context = RequestContext(request)
-    venta = Venta.objects.get(pk=pk)
+    venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
         venta.estado = 'C'  # CONFIRMADO
         venta.save()

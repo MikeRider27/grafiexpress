@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
@@ -32,7 +33,7 @@ def reporte_orden_de_trabajo(request, orden_de_trabajo_id):
                             bottomMargin=18,
                             )
 
-    orden_de_trabajo = OrdenDeTrabajo.objects.get(pk=orden_de_trabajo_id)
+    orden_de_trabajo = get_object_or_404(OrdenDeTrabajo, pk=orden_de_trabajo_id)
 
     reporte = []
     styles = getSampleStyleSheet()
@@ -261,7 +262,7 @@ def calendario_por_maquina(request, id):
         canvas.drawString(200, 20, "Hora: %s" % time.strftime("%X"))
         canvas.drawString(350, 20, "Impreso por: %s" % request.user)
 
-    obj = Programacion.objects.get(pk=id)
+    obj = get_object_or_404(Programacion, pk=id)
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="calendario_por_maquina.pdf"'

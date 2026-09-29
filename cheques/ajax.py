@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import json
 from django.http import HttpResponse
 
@@ -10,7 +11,7 @@ def get_monto_cheque_recibido(request):
     result_set = []
 
     if cheque_id:
-        monto = float((ChequeRecibido.objects.get(pk=cheque_id)).monto)
+        monto = float((get_object_or_404(ChequeRecibido, pk=cheque_id)).monto)
         result_set.append({
             'monto': monto,
         })

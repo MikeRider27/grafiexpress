@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response, redirect
 
 # Create your views here.
@@ -86,7 +87,7 @@ def proveedores_presentacion(request):
 
 def desactivar_proveedor(request, proveedor_id):
     context = RequestContext(request)
-    proveedor = Proveedor.objects.get(pk=proveedor_id)
+    proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
     if request.method == 'POST':
         proveedor.activo = False
         proveedor.save()
@@ -98,7 +99,7 @@ def desactivar_proveedor(request, proveedor_id):
 
 def activar_proveedor(request, proveedor_id):
     context = RequestContext(request)
-    proveedor = Proveedor.objects.get(pk=proveedor_id)
+    proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
     if request.method == 'POST':
         proveedor.activo = True
         proveedor.save()
