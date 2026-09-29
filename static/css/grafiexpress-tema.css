@@ -1,0 +1,227 @@
+/*
+ * Tema visual de GrafiExpress (fondos, tarjetas, encabezado, login).
+ * Se carga después de Bootstrap/sb-admin-2 y antes de grafiexpress-responsive.css.
+ */
+:root {
+    --gx-azul: #23527c;
+    --gx-azul-oscuro: #1a3f60;
+    --gx-azul-claro: #3a7cb8;
+    --gx-fondo: #eef2f7;
+    --gx-borde: #dde3ea;
+    --gx-sombra: 0 1px 3px rgba(20, 45, 75, .08), 0 4px 14px rgba(20, 45, 75, .06);
+}
+
+/* ---------------------------------------------------------------- fondo */
+body {
+    background-color: var(--gx-fondo);
+}
+
+/* ----------------------------------------------------------- encabezado */
+.navbar {
+    background: linear-gradient(90deg, var(--gx-azul-oscuro), var(--gx-azul)) !important;
+    border: 0;
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    margin-bottom: 0;
+}
+.navbar .navbar-brand,
+.navbar-top-links > li > a {
+    background: transparent !important;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+/* ---------------------------------------------------------- menú lateral */
+.sidebar {
+    background: #fff;
+    border-right: 1px solid var(--gx-borde);
+}
+@media (min-width: 768px) {
+    .sidebar {
+        min-height: calc(100vh - 51px);
+        box-shadow: 2px 0 8px rgba(20, 45, 75, .05);
+    }
+}
+.sidebar ul li {
+    border-bottom: 1px solid #f0f3f7;
+}
+.sidebar ul li a {
+    color: #3b4a5a;
+}
+.sidebar ul li a:hover,
+.sidebar ul li a:focus {
+    background: #f3f7fb;
+    color: var(--gx-azul);
+}
+.sidebar ul li a.active {
+    background: #e8f0f8;
+    color: var(--gx-azul);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--gx-azul-claro);
+}
+.sidebar .nav-second-level li a {
+    background: #fafbfd;
+}
+
+/* ------------------------------------------------ contenido en tarjeta */
+/* El menú lateral mide 250px (sb-admin-2); el layout original reservaba 200 */
+@media (min-width: 768px) {
+    body:not(.gx-home):not(.popup) #id_content {
+        margin-left: 250px;
+        padding: 0 24px;
+    }
+}
+body:not(.gx-home):not(.popup):not(.login) #content {
+    background: #fff;
+    border: 1px solid var(--gx-borde);
+    border-radius: 8px;
+    box-shadow: var(--gx-sombra);
+    padding: 18px 24px 24px;
+    margin: 24px 0;
+}
+#content h1 {
+    color: #22384f;
+    font-weight: 400;
+    margin-top: 4px;
+}
+#content .table > thead > tr > th {
+    background: #f5f8fb;
+    color: #52606d;
+    border-bottom: 2px solid var(--gx-borde);
+}
+#content .table-hover > tbody > tr:hover,
+#result_list tbody tr:hover {
+    background: #f5f9fd;
+}
+table.table-filter:not(#result_list) {
+    background: #f9fbfd;
+}
+
+/* ------------------------------------------------ portada (módulos) */
+.gx-home #id_modulos {
+    padding-top: 10px;
+}
+#id_modulos .panel {
+    border: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--gx-sombra);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+#id_modulos a:hover .panel,
+#id_modulos a:focus .panel {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(20, 45, 75, .15);
+}
+#id_modulos .panel-heading {
+    background: linear-gradient(135deg, var(--gx-azul), var(--gx-azul-claro));
+    border: 0;
+    padding: 18px 10px;
+}
+#id_modulos .panel-footer {
+    background: #fff;
+    border-top: 0;
+    font-weight: 600;
+    color: var(--gx-azul);
+}
+#id_modulos a:hover {
+    text-decoration: none;
+}
+
+/* ------------------------------------------ portada de cada módulo */
+.gx-presentacion {
+    text-align: center;
+    padding: 40px 20px 30px;
+}
+.gx-presentacion .gx-presentacion-icono {
+    width: 88px;
+    height: 88px;
+    line-height: 88px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gx-azul), var(--gx-azul-claro));
+    color: #fff;
+    font-size: 40px;
+    box-shadow: 0 6px 18px rgba(35, 82, 124, .3);
+}
+.gx-presentacion h1 {
+    font-size: 30px !important;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.gx-presentacion p {
+    color: #6b7885;
+    font-size: 15px;
+    margin: 0;
+}
+.gx-presentacion .gx-solo-celular {
+    display: none;
+}
+@media (max-width: 767px) {
+    .gx-presentacion .gx-solo-escritorio { display: none; }
+    .gx-presentacion .gx-solo-celular { display: inline; }
+}
+
+/* ---------------------------------------------------------------- login */
+body.login {
+    background: linear-gradient(135deg, var(--gx-azul-oscuro) 0%, var(--gx-azul) 55%, var(--gx-azul-claro) 100%) fixed;
+    min-height: 100vh;
+}
+body.login #container {
+    margin-top: 12vh;
+    border: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+body.login #header {
+    background: #fff;
+    color: var(--gx-azul);
+    text-align: center;
+    padding: 26px 20px 6px;
+    border-bottom: 0;
+}
+body.login #header h1,
+body.login #header #site-name,
+body.login #header a {
+    color: var(--gx-azul) !important;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+body.login #content {
+    padding: 10px 26px 26px;
+}
+body.login .submit-row {
+    padding: 10px 0 0;
+    text-align: center;
+}
+body.login .submit-row input {
+    background: var(--gx-azul);
+    border: 0;
+    border-radius: 6px;
+    padding: 10px 26px;
+    width: 100%;
+    font-size: 14px;
+    letter-spacing: .5px;
+}
+body.login .submit-row input:hover {
+    background: var(--gx-azul-oscuro);
+}
+body.login .form-row input:focus {
+    border-color: var(--gx-azul-claro);
+    box-shadow: 0 0 0 3px rgba(58, 124, 184, .2);
+    outline: 0;
+}
+
+/* ---------------------------------------------------------------- celular */
+@media (max-width: 767px) {
+    body:not(.gx-home):not(.popup):not(.login) #content {
+        padding: 12px 12px 16px;
+        margin: 12px 0;
+        border-radius: 6px;
+    }
+    body.login #container {
+        margin-top: 8vh;
+    }
+}

@@ -64,12 +64,13 @@
 {% endif %}
 </style>
 
-    <!-- Ajustes responsivos globales (van últimos para ganar sobre el tema) -->
+    <!-- Tema visual y ajustes responsivos globales (van últimos para ganar sobre sb-admin-2) -->
+    <link rel="stylesheet" href="{% static 'css/grafiexpress-tema.css' %}">
     <link rel="stylesheet" href="{% static 'css/grafiexpress-responsive.css' %}">
 
 </head>
 
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+<body class="{% if is_popup %}popup {% endif %}{% if request.path == "/admin/" %}gx-home {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
 
     <div id="wrapper">

@@ -1,15 +1,25 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<div class="container">
-	<div class="col-md-6 col-md-offset-2">
-		<div class="panel panel-primary">
-			<div class="panel-heading"> {{titulo}} </div>
-			<div class="panel-body">
-				<p>{{descripcion}}.</p>
-			</div>
-			<div class="panel-footer"> GRAFIEXPRESS </div>
-		</div>
+<div class="gx-presentacion">
+	<div class="gx-presentacion-icono">
+		{% if titulo == "SISTEMA" %}<i class="fa fa-desktop"></i>
+		{% elif titulo == "CLIENTES" %}<i class="fa fa-group"></i>
+		{% elif titulo == "PROVEEDORES" %}<i class="fa fa-sitemap"></i>
+		{% elif titulo == "MATERIALES" %}<i class="fa fa-cubes"></i>
+		{% elif titulo == "PRODUCCION" %}<i class="fa fa-file-text"></i>
+		{% elif titulo == "VENTAS" %}<i class="fa fa-money"></i>
+		{% elif titulo == "COMPRAS" %}<i class="fa fa-shopping-cart"></i>
+		{% elif titulo == "PAGO" %}<i class="fa fa-ticket"></i>
+		{% elif titulo == "COBROS" %}<i class="fa fa-thumbs-up"></i>
+		{% elif titulo == "BANCOS" %}<i class="fa fa-university"></i>
+		{% else %}<i class="fa fa-th-large"></i>{% endif %}
 	</div>
+	<h1>{{ titulo }}</h1>
+	{% if descripcion and descripcion != "." %}<p>{{ descripcion }}</p>{% endif %}
+	<p>
+		<span class="gx-solo-escritorio">Elegí una opción del menú de la izquierda para empezar.</span>
+		<span class="gx-solo-celular">Tocá <i class="fa fa-bars"></i> arriba a la derecha para ver las opciones.</span>
+	</p>
 </div>
 {% endblock %}
