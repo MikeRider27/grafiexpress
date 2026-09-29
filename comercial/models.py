@@ -3,6 +3,8 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
+
+from extra.validators import validar_archivo_subido
 from django.views.generic.dates import timezone_today
 
 from clientes.models import Cliente
@@ -40,7 +42,7 @@ class Presupuesto(models.Model):
     numerado = models.BooleanField(default=False)
     otros = models.CharField(max_length=200, help_text="especificar", blank=True)
     observaciones = models.TextField(max_length=400, blank=True, null=True)
-    adjunto = models.FileField(upload_to=get_file_path, null=True, blank=True)
+    adjunto = models.FileField(upload_to=get_file_path, null=True, blank=True, validators=[validar_archivo_subido])
 
     class Meta:
         verbose_name_plural = "Presupuestos"
@@ -91,7 +93,7 @@ class Actividad(models.Model):
     titulo = models.CharField(max_length=150, null=True, blank=True)
     resumen = models.TextField(max_length=350)
     realizado = models.BooleanField(default=True, help_text="Desmarcar cuando es una actividad programada")
-    documentos = models.FileField(upload_to=get_file_path, null=True, blank=True)
+    documentos = models.FileField(upload_to=get_file_path, null=True, blank=True, validators=[validar_archivo_subido])
     vendedor = models.ForeignKey("funcionarios.Funcionario", null=True, blank=True)
     fecha_creacion = models.DateField("Fecha de Creacion", default=datetime.now, editable=False)
 

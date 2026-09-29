@@ -4,6 +4,8 @@ from datetime import date, timedelta
 
 from django.apps import apps
 from django.db import models
+
+from extra.validators import validar_archivo_subido
 from django.db.models.aggregates import Sum
 from django.views.generic.dates import timezone_today
 from smart_selects.db_fields import ChainedForeignKey
@@ -279,7 +281,7 @@ class ArchivoOrdenDeTrabajo(models.Model):
         verbose_name_plural = "archivos"
 
     orden_de_trabajo = models.ForeignKey(OrdenDeTrabajo)
-    archivo = models.FileField(upload_to=get_file_path)
+    archivo = models.FileField(upload_to=get_file_path, validators=[validar_archivo_subido])
 
     def __str__(self):
         return str(self.archivo)
