@@ -5,6 +5,8 @@ from django.contrib import admin
 from django.conf import settings
 from django.views.generic import RedirectView
 
+from sistema.views import servir_media
+
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=False)),
     url(r'^admin/auth/', include('sistema.urls')),
@@ -28,12 +30,15 @@ urlpatterns = [
     url(r'^admin/pagos/', include('pagos.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^chaining/', include('smart_selects.urls')),
+    # Archivos subidos: descarga solo con sesión (ver sistema.views.servir_media)
+    url(r'^media/(?P<path>.*)$', servir_media, name='media_protegido'),
 ]
 
 # Servir archivos estáticos y multimedia en modo DEBUG
+# En desarrollo, los estáticos los sirve Django; el media va por servir_media
+# (con USAR_X_ACCEL=False para no depender de nginx).
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = "GRAFI EXPRESS"
 admin.site.site_title = "Industria gráfica"
