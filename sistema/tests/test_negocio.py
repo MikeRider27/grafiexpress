@@ -22,7 +22,7 @@ class DatosDemoConsistentesTest(ConDatosDemo):
             if v.condicion == 'CO':
                 self.assertEqual(v.saldo, 0, v)
             else:
-                self.assertEqual(v.saldo, v.total - v.get_pagado(), v)
+                self.assertEqual(v.saldo, v.total - v.get_pagado() - v.get_total_notas_de_credito(), v)
 
     def test_no_hay_stock_negativo(self):
         self.assertFalse(Material.objects.filter(stock_actual__lt=0).exists())

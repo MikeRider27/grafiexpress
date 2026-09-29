@@ -38,7 +38,8 @@ from pagos.models import DetalleDePago, DetalleDePago2, Pago
 from produccion.models import (CategoriaDeTrabajo, Costo, DetalleOrdenDeTrabajo, DetalleProceso, Maquina,
                                OrdenDeTrabajo, PapelCosto, PreprensaCosto, Proceso, SubcategoriaDeTrabajo)
 from proveedores.models import Proveedor
-from ventas.models import DetalleDeRemision, DetalleDeVenta, Remision, Venta, VentaRemision
+from ventas.models import (DetalleDeRemision, DetalleDeVenta, DetalleNotaDeCredito, NotaDeCredito, Remision,
+                           Venta, VentaRemision)
 
 HOY = date.today()
 D = Decimal
@@ -122,6 +123,7 @@ class Command(BaseCommand):
             self.produccion()
             self.ventas()
             self.cobros()
+            self.notas_de_credito()
             self.compras_y_pagos()
             self.comercial()
         self.stdout.write('Datos de demostración cargados.')
@@ -185,6 +187,7 @@ class Command(BaseCommand):
         self.tal_factura = talonario('Facturas 001-001', 0, 1, 5000)
         self.tal_remision = talonario('Remisiones 001-001', 1, 1, 5000)
         self.tal_recibo = talonario('Recibos', 2, 1, 5000)
+        self.tal_nota_credito = talonario('Notas de crédito 001-001', 3, 1, 5000)
         self.log('empresa, sucursal, timbrado y talonarios')
 
     # ------------------------------------------------------------------ clientes / proveedores
@@ -437,6 +440,29 @@ class Command(BaseCommand):
             presentacion.total = presentacion.get_total()
             presentacion.save()
         self.log('%d recibos de cobro (cheques y transferencias) y 1 rendición' % len(recibos))
+
+    # ------------------------------------------------------------------ notas de crédito
+    def notas_de_credito(self):
+        def emitir(venta, motivo, descripcion, monto):
+            t = self.tal_nota_credito
+            nota = NotaDeCredito.objects.create(
+                talonario=t, empresa=self.empresa, sucursal=self.sucursal, codigo_de_establecimiento='001',
+                punto_de_expedicion='001', numero='%07d' % t.get_siguiente(), timbrado=self.timbrado.numero,
+                fecha_de_emision=venta.fecha_de_emision + timedelta(days=5), cliente=venta.cliente, venta=venta,
+                motivo=motivo, afecta_saldo=(venta.condicion == 'CR' and venta.saldo > 0), estado='C')
+            t.set_siguiente()
+            DetalleNotaDeCredito.objects.create(nota_de_credito=nota, descripcion=descripcion, iva=10,
+                                                cantidad=D(1), precio_unitario=monto)
+            nota.actualizar_total()
+            return nota
+
+        # Descuento sobre una factura a crédito con saldo: descuenta del saldo
+        credito = Venta.objects.filter(condicion='CR', saldo__gt=0).order_by('id').first()
+        emitir(credito, 'DES', 'Descuento por demora en la entrega', (credito.saldo / 10).quantize(D('1')))
+        # Devolución sobre una factura contado: comprobante, no modifica el saldo
+        contado = Venta.objects.filter(condicion='CO').order_by('id').first()
+        emitir(contado, 'DEV', 'Devolución de unidades con falla de impresión', (contado.total / 20).quantize(D('1')))
+        self.log('2 notas de crédito (una descuenta saldo, otra de una factura contado)')
 
     # ------------------------------------------------------------------ compras / pagos
     def compras_y_pagos(self):
