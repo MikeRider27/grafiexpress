@@ -24,16 +24,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # CONFIGURACIÓN RÁPIDA PARA DESARROLLO (NO APTA PARA PRODUCCIÓN)
 # ============================================================================
 
-# SECURITY WARNING: mantener la clave secreta en secreto en producción
-# Esta clave se usa para firmar sesiones, tokens CSRF, etc.
-# Se puede sobreescribir con la variable de entorno SECRET_KEY (ej. en .env);
-# si no está definida, se usa la clave que ya estaba hardcodeada acá para no
-# romper el despliegue actual.
-SECRET_KEY = os.environ.get('SECRET_KEY', '1p@z$ky1ym)o+0-&nlwrg6$shj&#f@(l-q4t7kq&5ljh(ea$8r')
+from django.core.exceptions import ImproperlyConfigured
 
-# SECURITY WARNING: no ejecutar con DEBUG activado en producción
-# DEBUG=True muestra errores detallados, útil en desarrollo pero peligroso en producción
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+def variable_requerida(nombre):
+    """Secretos: sin valor por defecto en el código; tienen que venir del entorno (.env)."""
+    valor = os.environ.get(nombre)
+    if not valor:
+        raise ImproperlyConfigured(
+            'Falta la variable de entorno %s (definila en .env; ver .env.example).' % nombre)
+    return valor
+
+
+# Clave para firmar sesiones, tokens CSRF, etc. Obligatoria por entorno:
+# nunca debe quedar escrita en el código ni en el repositorio.
+SECRET_KEY = variable_requerida('SECRET_KEY')
+
+# DEBUG=True muestra errores detallados: solo para desarrollo, se activa explícitamente
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # ALLOWED_HOSTS: hosts permitidos para servir la app. Vacío solo funciona con DEBUG=True.
 # Se puede definir por entorno como lista separada por comas, ej: ALLOWED_HOSTS=grafiexpress.com,www.grafiexpress.com
@@ -142,16 +150,15 @@ DATABASES = {
 }
 """
 
-# Configuración actual: PostgreSQL. Cada valor se puede sobreescribir por
-# variable de entorno (ej. en .env); si no está definida se usa el valor que
-# ya estaba hardcodeado acá para no romper el despliegue actual.
+# Configuración actual: PostgreSQL, tomada del entorno (.env). La contraseña
+# es obligatoria; el resto tiene valores neutros por defecto.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',  # Motor PostgreSQL
-        'NAME': os.environ.get('DB_NAME', 'grafiexpress2'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', '123'),
-        'HOST': os.environ.get('DB_HOST', '192.168.11.220'),
+        'NAME': os.environ.get('DB_NAME', 'grafiexpress'),
+        'USER': os.environ.get('DB_USER', 'grafiexpress'),
+        'PASSWORD': variable_requerida('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '5432'),
         # Reutiliza conexiones entre requests (segundos); 0 = cerrar siempre
         'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),

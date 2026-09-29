@@ -178,9 +178,16 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Si no se define ninguna variable de entorno, `settings.py` usa los mismos
-valores de `SECRET_KEY`/`DEBUG`/base de datos que ya tenía hardcodeados
-(ver `.env.example` para la lista completa de variables soportadas).
+La configuración se toma de variables de entorno (ver `.env.example`).
+`SECRET_KEY` y `DB_PASSWORD` son **obligatorias**: el código no tiene
+secretos por defecto y sin ellas el sistema no arranca. Ejemplo:
+
+```
+export SECRET_KEY='...' DB_PASSWORD='...' DB_HOST=localhost DEBUG=True ALLOWED_HOSTS=localhost
+```
+
+Nunca escribir contraseñas, claves ni IPs de servidores en archivos del
+repositorio: van en `.env` (ignorado por git) o en `servidores.local.md`.
 
 ## Vulnerabilidades de dependencias (Dependabot)
 
