@@ -181,22 +181,24 @@ como mínimo), lo que implica cambios de código en todas las apps
 (`MIDDLEWARE_CLASSES` → `MIDDLEWARE`, `url()`, templates, etc.) y no es algo
 para hacer de paso — requiere su propio plan de trabajo y testing.
 
-## Actualizar sistema en producción
+## Actualizar el sistema en producción
 
-1. `git checkout produccion`
-2. `git pull master`
-3. `python manage.py makemigrations`
-4. `python manage.py migrate`
-5. `git add .`
-6. `git commit -m '<mensaje>'`
-7. `git push origin produccion`
+1. `git pull` de la rama de producción.
+2. `make backup` (backup inmediato antes de actualizar).
+3. `make up` (reconstruye las imágenes; al arrancar, "web" aplica las
+   migraciones pendientes y crea los roles que falten).
+4. `make ps` para verificar que todos los servicios estén *healthy*.
 
-## Acceso a servidores
+Las migraciones se generan en desarrollo (`makemigrations`) y se suben al
+repo; nunca se generan en el servidor.
 
-**Servidor de producción**
-- IP: 190.128.217.106
-- Puerto: 8012
+Los datos de acceso a los servidores están en `servidores.local.md`
+(archivo local, fuera del repo).
 
-**Servidor Amazon**
-- IP: 54.219.130.191
-- Puerto: 8000
+## Mantenimiento
+
+- `make manage c="recalcular_saldos"`: recalcula cantidades entregadas y
+  facturadas de las OT y pagado/saldo de las facturas (útil tras migrar
+  datos o editar directo en la base).
+- `make manage c="vencer_timbrados"`: desactiva timbrados vencidos (corre
+  solo todos los días en el servicio `tareas`).

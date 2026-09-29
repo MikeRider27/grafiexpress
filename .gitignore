@@ -19,3 +19,10 @@ docker/db/seed/*
 !docker/db/seed/.gitkeep
 docker/db/backups/*
 !docker/db/backups/.gitkeep
+
+# Datos reales / backups / bases locales: nunca en el repo
+*.backup
+*.sqlite3
+backups/
+ip_publica.txt
+*.local.md
