@@ -54,6 +54,18 @@ solas al arrancar `web`.
 > coincide con el historial de migraciones (p. ej. `materiales.0002` falla
 > porque la columna ya existe).
 
+### Datos de prueba
+
+Para probar sin datos reales, sobre una base vacía (sin clientes):
+```
+make demo
+```
+Carga datos ficticios en todos los módulos (clientes, OT, facturas, cobros,
+compras, pagos, stock, producción, comercial) usando la misma lógica del
+sistema, así que saldos, stock y cantidades entregadas/facturadas quedan
+consistentes. También crea dos usuarios vendedores de prueba
+(`vendedor_marta` / `vendedor_julio`, contraseña `demo1234`).
+
 ### Operación diaria
 
 ```
