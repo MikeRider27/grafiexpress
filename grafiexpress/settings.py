@@ -94,6 +94,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',                # Protección CSRF
     'django.contrib.auth.middleware.AuthenticationMiddleware',  # Asocia usuario a request
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',  # Protege sesiones autenticadas
+    'sistema.middleware.RequiereLoginMiddleware',               # Exige login (staff) en todas las vistas del sistema
     'django.contrib.messages.middleware.MessageMiddleware',     # Mensajes flash
     'django.middleware.clickjacking.XFrameOptionsMiddleware',   # Prevención de clickjacking
     'django.middleware.security.SecurityMiddleware',            # Mejoras de seguridad
@@ -161,7 +162,7 @@ DATABASES = {
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # URL para redirigir cuando se requiere autenticación
-LOGIN_URL = '/admin/login'
+LOGIN_URL = '/admin/login/'
 
 
 # ============================================================================
