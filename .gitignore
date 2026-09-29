@@ -13,3 +13,9 @@ __pycache__/
 
 # Estáticos recolectados para el contenedor Docker (se regeneran con collectstatic)
 static_volume/
+
+# Dumps de semilla y backups de la base interna de Docker
+docker/db/seed/*
+!docker/db/seed/.gitkeep
+docker/db/backups/*
+!docker/db/backups/.gitkeep

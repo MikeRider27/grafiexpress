@@ -22,3 +22,10 @@ __pycache__/
 *.log
 readme.md
 ip_publica.txt
+
+# Secretos y datos del stack Docker (nunca dentro de la imagen)
+.env
+docker/db/seed/
+docker/db/backups/
+docker-compose*.yml
+Makefile

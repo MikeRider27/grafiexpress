@@ -1,0 +1,24 @@
+# Overrides para desarrollo. Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+# (o "make dev")
+#
+# - Monta el código del host para ver cambios sin rebuild (gunicorn --reload).
+# - Publica PostgreSQL SOLO en 127.0.0.1 para conectarse con pgAdmin/DBeaver.
+services:
+  web:
+    volumes:
+      - .:/app
+      - static:/app/staticfiles
+      - media:/app/media
+    command: >
+      sh -c "gunicorn grafiexpress.wsgi:application --bind 0.0.0.0:8000
+      --workers 2 --timeout 120 --reload --access-logfile - --error-logfile -"
+
+  db:
+    # "backend" es una red interna (sin puertos publicados); para exponer el
+    # puerto al host hay que sumar el contenedor a una red normal.
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "127.0.0.1:${DB_EXPOSE_PORT:-5433}:5432"

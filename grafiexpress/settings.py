@@ -152,8 +152,13 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD', '123'),
         'HOST': os.environ.get('DB_HOST', '192.168.11.220'),
         'PORT': os.environ.get('DB_PORT', '5432'),
+        # Reutiliza conexiones entre requests (segundos); 0 = cerrar siempre
+        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
     }
 }
+
+# La app corre detrás de nginx: confiar en el esquema (http/https) que informa
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # URL para redirigir cuando se requiere autenticación
 LOGIN_URL = '/admin/login'
@@ -228,3 +233,27 @@ CRONJOBS = [
     # Redirige el log a /tmp/scheduled_job.log
     ('1 0 * * *', 'empresas.cron.set_vencimiento_timbrado', '>> /tmp/scheduled_job.log'),
 ]
+
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+
+# Todo a stdout/stderr para que se vea con "docker compose logs web"
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '[%(asctime)s] %(levelname)s %(name)s: %(message)s'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': os.environ.get('LOG_LEVEL', 'INFO'),
+    },
+    'loggers': {
+        'django.request': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+    },
+}

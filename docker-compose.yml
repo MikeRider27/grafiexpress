@@ -1,70 +1,107 @@
+# =============================================================================
+# GrafiExpress — stack completo con base de datos interna
+#
+#   nginx  (puerto público ${APP_PORT})  →  web (gunicorn :8000)  →  db (PostgreSQL)
+#
+# - La base de datos vive en el volumen "pgdata" y NO se publica al host
+#   (solo es accesible desde la red interna "backend"). Ver DB_EXPOSE_PORT en
+#   docker-compose.dev.yml si necesitás conectarte con pgAdmin/DBeaver.
+# - Estáticos y archivos subidos los sirve nginx desde volúmenes compartidos.
+# - Migraciones y collectstatic corren solos al arrancar "web".
+#
+# Uso: ver readme.md o "make help".
+# =============================================================================
+
+name: grafiexpress
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
+  db:
+    image: postgres:12-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-grafiexpress}
+      POSTGRES_USER: ${DB_USER:-grafiexpress}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Definí DB_PASSWORD en .env}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: America/Asuncion
+      PGTZ: America/Asuncion
+      # Dump a restaurar la primera vez que se crea el volumen (opcional)
+      DB_SEED_FILE: ${DB_SEED_FILE:-}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+      - ./docker/db/seed:/seed:ro
+      - ./docker/db/backups:/backups
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging: *default-logging
+
   web:
     build: .
-    ports:
-      - "8002:8000"
-    volumes:
-      - .:/app
-      - ./static_volume:/app/staticfiles
-      - ./media:/app/media
+    image: grafiexpress-web:latest
+    restart: unless-stopped
     env_file:
       - .env
     environment:
-      - DJANGO_SETTINGS_MODULE=grafiexpress.settings
-      - PYTHONPATH=/app
+      DJANGO_SETTINGS_MODULE: grafiexpress.settings
+      # La app siempre habla con el Postgres interno del stack
+      DB_HOST: db
+      DB_PORT: "5432"
+    volumes:
+      - static:/app/staticfiles
+      - media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    logging: *default-logging
+
+  nginx:
+    image: nginx:1.27-alpine
     restart: unless-stopped
-    # Si necesitas comunicarte con un servicio corriendo en el host (fuera de Docker)
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    ports:
+      - "${APP_PORT:-8002}:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static:/srv/static:ro
+      - media:/srv/media:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1/static/admin/css/base.css || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
 
-    # --- Servicio de JasperReports (deshabilitado) --------------------------
-    # depends_on:
-    #   - jasper-report
+  # Servicio de JasperReports — DESHABILITADO.
+  # common/jasper/server.py es Jython (Python 2 + imports Java) y el conector
+  # (common/jasper/conector.py) apunta a 127.0.0.1:5000 con socket + pickle,
+  # que no funciona en Python 3. Hace falta una imagen propia con JDK.
 
-  # ---------------------------------------------------------------------------
-  # Servicio de JasperReports (socket en el puerto 5000) — DESHABILITADO
-  #
-  # No lo pudimos dejar funcionando tal cual estaba porque:
-  #   1. Referencia "Dockerfile.jasper", que no existe en el repo.
-  #   2. El comando apunta a "common/jasper/jasper_server.py", que tampoco
-  #      existe. El script real es "common/jasper/server.py".
-  #   3. Ese script no es Python normal: usa "import SocketServer" (Python 2)
-  #      e imports Java (`from java.util import Properties`), o sea que
-  #      necesita correr sobre Jython + un JDK, no sobre CPython 3.5 como el
-  #      resto del proyecto. Requiere su propia imagen base.
-  #   4. common/jasper/conector.py se conecta a 127.0.0.1:5000 hardcodeado.
-  #      Entre contenedores separados eso no funciona: hay que parametrizarlo
-  #      (ej. JASPER_HOST=jasper-report) para que apunte al hostname del
-  #      servicio en la red de Docker.
-  #
-  # Para reactivarlo: crear Dockerfile.jasper con Jython + el JDK necesario,
-  # corregir el nombre del script en "command", y parametrizar el host en
-  # conector.py.
-  # ---------------------------------------------------------------------------
-  # jasper-report:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.jasper
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - .:/app
-  #     - ./media:/app/media
-  #   command: python /app/common/jasper/server.py
-  #   restart: unless-stopped
+networks:
+  backend:
+    internal: true   # sin salida a internet: solo web <-> db
+  frontend:
 
-  # Servicio opcional de PostgreSQL (comentado por defecto; hoy la app apunta
-  # a un Postgres externo definido por las variables DB_* en .env)
-  # db:
-  #   image: postgres:9.6
-  #   environment:
-  #     POSTGRES_DB: ${DB_NAME:-grafiexpress}
-  #     POSTGRES_USER: ${DB_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-
-# volumes:
-#   postgres_data:
+volumes:
+  pgdata:
+  static:
+  media:

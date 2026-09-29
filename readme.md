@@ -3,61 +3,85 @@
 Sistema de gestión para industria gráfica (ventas, producción, compras, materiales,
 clientes, cobros, pagos, etc.) hecho en Django 1.8 / Python 3.5.
 
-## Levantar el proyecto con Docker (desarrollo)
+## Levantar el proyecto con Docker
 
-Requisitos: Docker y Docker Compose.
+Requisitos: Docker (con Compose v2) y `make`.
 
-1. Copiar el archivo de variables de entorno de ejemplo:
-   ```
-   cp .env.example .env
-   ```
-   Ajustar en `.env` los valores de `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-   según a qué base de datos PostgreSQL te vas a conectar. Los valores por
-   defecto apuntan a la base usada actualmente en desarrollo.
+### Arquitectura
 
-   ⚠️ Si `SECRET_KEY` tiene el caracter `$`, escribilo como `$$` en `.env`
-   (docker-compose interpola `$` como variables; `$$` es el literal).
+```
+navegador → nginx (:APP_PORT, 8002 por defecto) → web (gunicorn :8000) → db (PostgreSQL 12)
+```
 
-2. Construir la imagen y levantar el servicio:
-   ```
-   docker compose up -d --build web
-   ```
-   El build corre `collectstatic` dentro de la imagen, pero el volumen
-   `./static_volume:/app/staticfiles` tapa esos archivos con lo que haya en
-   el host. Por eso, después de cada `--build` (o si cambiaste algún CSS/JS),
-   hay que correr `collectstatic` una vez más ya con el volumen montado:
-   ```
-   docker compose exec web python manage.py collectstatic --noinput
-   ```
-   Si no se ve ningún estilo en `/admin/`, este es el primer paso a probar.
+| Servicio | Qué hace | Persistencia |
+|---|---|---|
+| `db` | PostgreSQL **interno** del stack. No publica puertos: solo lo ve `web` por la red interna `backend`. | volumen `grafiexpress_pgdata` |
+| `web` | Django + gunicorn. Al arrancar espera a la base, corre `migrate` y `collectstatic` solo. | volúmenes `static` y `media` |
+| `nginx` | Proxy reverso; sirve `/static/` y `/media/` directamente. | — |
 
-3. La app queda disponible en `http://localhost:8002/` (puerto definido en
-   `docker-compose.yml`, mapeado al 8000 interno del contenedor).
+Los datos sobreviven a `make down` / reinicios; solo se borran con `make reset-db`
+o `docker compose down -v`.
 
-4. Migraciones (se corren manualmente, no están en el build):
-   ```
-   docker compose exec web python manage.py migrate
-   docker compose exec web python manage.py createsuperuser
-   ```
+### Primera vez
 
-5. Ver logs:
-   ```
-   docker compose logs -f web
-   ```
+```
+make init        # crea .env con SECRET_KEY y DB_PASSWORD aleatorias
+make up          # build + levanta db, web y nginx
+make superuser   # crea el usuario administrador
+```
 
-6. Comandos que escriben archivos dentro del repo (`makemigrations`, por
-   ejemplo) necesitan correr como root, porque el contenedor corre con un
-   usuario sin privilegios y el código está montado desde el host:
-   ```
-   docker compose exec -u root web python manage.py makemigrations
-   ```
+La app queda en `http://localhost:8002/`. Con `DEBUG=False` (recomendado),
+`ALLOWED_HOSTS` en `.env` tiene que incluir el dominio/IP con el que se accede.
+
+### Cargar datos existentes
+
+**Opción A — al crear la base (semilla):** copiar un dump a `docker/db/seed/`
+y poner su nombre en `DB_SEED_FILE` del `.env`. Se restaura solo la primera vez
+que se crea el volumen (para repetirlo: `make reset-db`). Acepta `.backup`
+(`pg_dump -Fc`), `.sql` y `.sql.gz`.
+
+**Opción B — sobre una base ya levantada:**
+```
+make restore f=ruta/al/dump.backup
+```
+
+Para migrar desde el servidor PostgreSQL anterior, generar el dump allá con
+`pg_dump -Fc -h <host> -p <puerto> -U <usuario> <base> > grafiexpress.backup`
+y usar cualquiera de las dos opciones. Las migraciones que falten se aplican
+solas al arrancar `web`.
+
+> Los dumps de 2017 en `backups/` **no** sirven como semilla: su esquema no
+> coincide con el historial de migraciones (p. ej. `materiales.0002` falla
+> porque la columna ya existe).
+
+### Operación diaria
+
+```
+make help        # lista todos los comandos
+make logs        # logs de todo (make logs s=web para uno solo)
+make ps          # estado y healthchecks
+make backup      # dump a docker/db/backups/grafiexpress_<fecha>.backup
+make psql        # consola SQL
+make manage c="showmigrations"
+```
+
+### Modo desarrollo
+
+```
+make dev
+```
+
+Monta el código del host en el contenedor (gunicorn con `--reload`, sin rebuild)
+y publica PostgreSQL en `127.0.0.1:${DB_EXPOSE_PORT}` (5433 por defecto) para
+conectarse con pgAdmin/DBeaver. Comandos que escriben archivos en el repo
+(`makemigrations`) necesitan root: `docker compose exec -u root web python manage.py makemigrations`.
 
 ### Servicio de reportes (JasperReports)
 
-El servicio `jasper-report` está **deshabilitado** en `docker-compose.yml`
-(comentado). El script que necesita (`common/jasper/server.py`) es Jython, no
-Python normal, y requiere una imagen con JDK que todavía no está armada. Ver
-los comentarios en `docker-compose.yml` para el detalle de qué falta.
+El servicio de reportes está **deshabilitado** en `docker-compose.yml`. El
+script que necesita (`common/jasper/server.py`) es Jython, no Python normal,
+y requiere una imagen con JDK que todavía no está armada. Ver los comentarios
+en `docker-compose.yml` para el detalle de qué falta.
 
 ## Correr sin Docker (bare-metal)
 

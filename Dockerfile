@@ -34,16 +34,18 @@ COPY . .
 RUN mkdir -p /app/staticfiles /app/media && \
     chown -R app:app /app
 
-# Recopila estáticos en build time. Si tu SECRET_KEY/DB solo están disponibles
-# en runtime (vía variables de entorno), corré collectstatic como parte del
-# arranque del contenedor en vez de acá.
-RUN python manage.py collectstatic --noinput || true
+# collectstatic se corre al arrancar (docker/entrypoint.sh), porque el destino
+# es un volumen compartido con nginx que no existe en build time.
+RUN chmod +x /app/docker/entrypoint.sh
 
 USER app
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/', timeout=3).status < 500 else 1)" || exit 1
+# /admin/login/ responde 200 sin sesión; cualquier 5xx o timeout = unhealthy
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/admin/login/', timeout=4).status < 500 else 1)" || exit 1
+
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
 
 CMD ["sh", "-c", "gunicorn grafiexpress.wsgi:application --bind 0.0.0.0:8000 --workers ${WEB_CONCURRENCY} --timeout 60 --access-logfile - --error-logfile -"]
