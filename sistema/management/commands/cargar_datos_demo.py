@@ -26,7 +26,8 @@ from clientes.models import Cliente, Contacto, Marca
 from cobros.models import DetalleDeRecibo, DetalleDeRecibo2, DetallePresentacion, PresentacionCobros, Recibo
 from comercial.models import Actividad, CantidadPresupuesto, Canal, MaterialPresupuesto, Presupuesto
 from compras.models import Compra, DetalleCompra, InsumoOrdenDeCompra, OrdenDeCompra
-from depositos.models import Alta, Baja, Deposito, DetalleAlta, DetalleBaja, DetalleRetiro, Retiro
+from depositos.models import (Alta, Baja, Deposito, DetalleAlta, DetalleBaja, DetalleDevolucion, DetalleRetiro,
+                               Devolucion, Retiro)
 from empresas.models import Empresa, Sucursal, Talonario, Timbrado
 from funcionarios.models import Funcionario
 from maquinaria.models import Maquina as MaquinaCosto
@@ -336,7 +337,16 @@ class Command(BaseCommand):
             DetalleRetiro.objects.create(retiro=retiro, orden_de_trabajo=ot, deposito=self.depositos[0],
                                          material=detalle_ot.material, cantidad=cantidad)
             detalle_ot.material.actualizar_stock()
-        self.log('%d órdenes de trabajo, costeos, procesos productivos y retiros de material' % len(self.ots))
+
+        # Devolución parcial del sobrante de los dos primeros retiros
+        for retiro in Retiro.objects.order_by('id')[:2]:
+            devolucion = Devolucion.objects.create(fecha=retiro.fecha + timedelta(days=3), funcionario=self.deposito_resp,
+                                                   retiro=retiro)
+            for detalle in retiro.detalleretiro_set.all():
+                DetalleDevolucion.objects.create(devolucion=devolucion, detalle_retiro=detalle,
+                                                 cantidad=(detalle.cantidad / 10).quantize(D('1')), deposito=detalle.deposito)
+                detalle.material.actualizar_stock()
+        self.log('%d órdenes de trabajo, costeos, procesos productivos, retiros y devoluciones de material' % len(self.ots))
 
     # ------------------------------------------------------------------ remisiones / facturas
     def ventas(self):

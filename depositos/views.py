@@ -393,3 +393,101 @@ class DevolucionDeleteView(DeleteView):
     template_name = "devolucion_confirm_delete.html"
     success_url = '/admin/depositos/devolucion/'
 
+
+
+# ---------------------------------------------------------------------------
+# Detalle de movimientos (alta, baja, retiro, devolución): cabecera + materiales
+# ---------------------------------------------------------------------------
+
+class MovimientoDetailView(DetailView):
+    template_name = "movimiento_detail.html"
+    titulo = ""
+    url_lista = ""
+    columnas = ()
+
+    def get_cabecera(self):
+        """Lista de (etiqueta, valor) con los datos generales del movimiento."""
+        m = self.object
+        return [("Número", m.id), ("Fecha", m.fecha.strftime("%d/%m/%Y")),
+                ("Funcionario", m.funcionario or "-")]
+
+    def get_filas(self):
+        """Lista de filas (tuplas alineadas con self.columnas)."""
+        return []
+
+    def get_context_data(self, **kwargs):
+        context = super(MovimientoDetailView, self).get_context_data(**kwargs)
+        filas = self.get_filas()
+        context.update({
+            'titulo': self.titulo,
+            'url_lista': self.url_lista,
+            'cabecera': self.get_cabecera(),
+            'columnas': self.columnas,
+            'filas': filas,
+            'total_cantidad': sum(f[-1] for f in filas) if filas else 0,
+        })
+        return context
+
+
+class AltaDetailView(MovimientoDetailView):
+    model = Alta
+    titulo = "Alta de materiales"
+    url_lista = "/admin/depositos/alta/"
+    columnas = ("Material", "Motivo", "Cantidad")
+
+    def get_cabecera(self):
+        return super(AltaDetailView, self).get_cabecera() + [("Depósito", self.object.deposito)]
+
+    def get_filas(self):
+        return [(str(d.material), d.motivo or "", d.cantidad)
+                for d in DetalleAlta.objects.filter(alta=self.object).select_related('material')]
+
+
+class BajaDetailView(MovimientoDetailView):
+    model = Baja
+    titulo = "Baja de materiales"
+    url_lista = "/admin/depositos/baja/"
+    columnas = ("Material", "Motivo", "Cantidad")
+
+    def get_cabecera(self):
+        return super(BajaDetailView, self).get_cabecera() + [("Depósito", self.object.deposito)]
+
+    def get_filas(self):
+        return [(str(d.material), d.motivo or "", d.cantidad)
+                for d in DetalleBaja.objects.filter(baja=self.object).select_related('material')]
+
+
+class RetiroDetailView(MovimientoDetailView):
+    model = Retiro
+    titulo = "Retiro de materiales"
+    url_lista = "/admin/depositos/retiro/"
+    columnas = ("Material", "Depósito", "OT", "Factura", "Cantidad")
+
+    def get_context_data(self, **kwargs):
+        context = super(RetiroDetailView, self).get_context_data(**kwargs)
+        context['url_imprimir'] = "/admin/depositos/retiro/%s/print/" % self.object.id
+        return context
+
+    def get_filas(self):
+        detalles = DetalleRetiro.objects.filter(retiro=self.object).select_related(
+            'material', 'deposito', 'orden_de_trabajo', 'factura')
+        return [(str(d.material), str(d.deposito),
+                 d.orden_de_trabajo_id or "", d.factura.get_numero_de_factura() if d.factura else "",
+                 d.cantidad) for d in detalles]
+
+
+class DevolucionDetailView(MovimientoDetailView):
+    model = Devolucion
+    titulo = "Devolución de materiales"
+    url_lista = "/admin/depositos/devolucion/"
+    columnas = ("Material", "Depósito", "Cantidad")
+
+    def get_cabecera(self):
+        retiro = self.object.retiro
+        return super(DevolucionDetailView, self).get_cabecera() + [("Retiro", retiro or "-")]
+
+    def get_filas(self):
+        detalles = DetalleDevolucion.objects.filter(devolucion=self.object).select_related(
+            'detalle_retiro__material', 'deposito')
+        return [(str(d.detalle_retiro.material) if d.detalle_retiro else "-", str(d.deposito), d.cantidad)
+                for d in detalles]

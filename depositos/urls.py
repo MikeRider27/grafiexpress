@@ -36,6 +36,11 @@ url(
 
     url(r'^devolucion/(?P<pk>\d+)/delete/$', DevolucionDeleteView.as_view(), name='devolucion_del'),
 
+    url(r'^alta/(?P<pk>\d+)/detail/$', AltaDetailView.as_view(), name='alta_det'),
+    url(r'^baja/(?P<pk>\d+)/detail/$', BajaDetailView.as_view(), name='baja_det'),
+    url(r'^retiro/(?P<pk>\d+)/detail/$', RetiroDetailView.as_view(), name='retiro_det'),
+    url(r'^devolucion/(?P<pk>\d+)/detail/$', DevolucionDetailView.as_view(), name='devolucion_det'),
+
     url(r'^stock/$', StockListView.as_view(), name='stock_lis'),
 
     url(
