@@ -21,6 +21,7 @@ navegador → nginx (:APP_PORT, 8002 por defecto) → web (gunicorn :8000) → d
 | `nginx` | Proxy reverso; sirve `/static/` y `/media/` directamente. | — |
 | `jasper` | Genera los PDF de facturas y remisiones (JasperReports, Java 8). Solo red interna. | — |
 | `backup` | Backup diario de la base (02:00), verificado, con rotación de 14 días. | `docker/db/backups/` |
+| `tareas` | Tareas programadas de la app: desactiva timbrados vencidos (00:05). | — |
 
 Los datos sobreviven a `make down` / reinicios; solo se borran con `make reset-db`
 o `docker compose down -v`.

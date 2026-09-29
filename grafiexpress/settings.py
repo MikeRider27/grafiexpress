@@ -228,6 +228,9 @@ CRONTAB_DJANGO_MANAGE_PATH = BASE_DIR + '/manage.py'
 # Ruta al archivo settings.py (aunque la variable no se usa directamente)
 CRONTAB_DJANGO_SETTINGS_MODULE = BASE_DIR + '/grafiexpress/settings.py'
 
+# NOTA: en Docker estas tareas NO usan django_crontab. Las ejecuta el servicio
+# "tareas" de docker-compose.yml (comando "vencer_timbrados"). Esto queda solo
+# para una instalación sin Docker.
 # Definición de tareas cron
 CRONJOBS = [
     # Ejecuta todos los días a la 01:00 la función set_vencimiento_timbrado

@@ -142,6 +142,30 @@ services:
       - backend
     logging: *default-logging
 
+  # Tareas programadas de la app (reemplaza al cron de django_crontab, que
+  # en Docker no corría): desactiva los timbrados vencidos todos los días.
+  tareas:
+    image: grafiexpress-web:latest
+    restart: unless-stopped
+    command: ["/app/docker/tareas/diario.sh", "00:05", "python", "manage.py", "vencer_timbrados"]
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: grafiexpress.settings
+      DB_HOST: db
+      DB_PORT: "5432"
+      RUN_MIGRATIONS: "0"       # las corre "web"
+      RUN_COLLECTSTATIC: "0"
+      TZ: America/Asuncion
+    healthcheck:
+      disable: true             # no sirve HTTP (el healthcheck de la imagen es para gunicorn)
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - backend
+    logging: *default-logging
+
 networks:
   backend:
     internal: true   # sin salida a internet: solo web <-> db
