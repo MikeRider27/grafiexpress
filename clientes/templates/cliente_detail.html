@@ -143,12 +143,14 @@
 		{% endfor %}
 	</tbody>
 </table>
+    {% if perms.comercial.add_actividad %}
     <div style="float: right">
         <th>
         <a class="btn btn-info" href="/admin/comercial/actividad/add"  title="Crear"><i class="fa fa-plus"></i>
         </a>
     </th>
     </div>
+    {% endif %}
 
 
     <br>

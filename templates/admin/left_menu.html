@@ -549,18 +549,26 @@
 	</li>
 	{% endif %}
 
+    {% if perms.produccion.add_maquina or perms.produccion.change_maquina %}
     <li>
         <a href="/admin/produccion/maquina/">MAQUINAS</a>
     </li>
+    {% endif %}
+    {% if perms.produccion.add_proceso or perms.produccion.change_proceso %}
     <li>
         <a href="/admin/produccion/proceso/">PROCESOS</a>
     </li>
+    {% endif %}
+    {% if perms.produccion.add_programacion or perms.produccion.change_programacion %}
     <li>
         <a href="/admin/produccion/programacion/">PROGRAMACION</a>
     </li>
+    {% endif %}
+    {% if perms.produccion.add_produccion or perms.produccion.change_produccion %}
     <li>
         <a href="/admin/produccion/produccion/">PRODUCCION</a>
     </li>
+    {% endif %}
 
 {% elif '/admin/compras' in request.path %}
 	{% if perms.compras.add_compra or perms.compras.change_compra or perms.compras.delete_compra %}
