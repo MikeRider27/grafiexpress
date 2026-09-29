@@ -161,7 +161,7 @@ def reporte_orden_de_trabajo(request, orden_de_trabajo_id):
 
 
 
-        datos = [("Observaciones:", Paragraph(detalle.observaciones, styles['Normal']) )]
+        datos = [("Observaciones:", Paragraph(detalle.observaciones or '', styles['Normal']) )]
         t = Table(datos, colWidths=(30*mm, 165*mm))
 
         t.setStyle(TableStyle(
