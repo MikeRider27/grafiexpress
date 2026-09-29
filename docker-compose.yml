@@ -2,6 +2,7 @@
 # GrafiExpress — stack completo con base de datos interna
 #
 #   nginx  (puerto público ${APP_PORT})  →  web (gunicorn :8000)  →  db (PostgreSQL)
+#                                              └→ jasper (PDFs de facturas/remisiones) → db
 #
 # - La base de datos vive en el volumen "pgdata" y NO se publica al host
 #   (solo es accesible desde la red interna "backend"). Ver DB_EXPOSE_PORT en
@@ -59,6 +60,7 @@ services:
       # La app siempre habla con el Postgres interno del stack
       DB_HOST: db
       DB_PORT: "5432"
+      JASPER_URL: http://jasper:8080
     volumes:
       - static:/app/staticfiles
       - media:/app/media
@@ -91,10 +93,27 @@ services:
       retries: 3
     logging: *default-logging
 
-  # Servicio de JasperReports — DESHABILITADO.
-  # common/jasper/server.py es Jython (Python 2 + imports Java) y el conector
-  # (common/jasper/conector.py) apunta a 127.0.0.1:5000 con socket + pickle,
-  # que no funciona en Python 3. Hace falta una imagen propia con JDK.
+  # Servicio de reportes JasperReports (facturas y remisiones en PDF).
+  # Java 8 + los mismos .jasper/.jar de common/jasper. Ver docker/jasper/.
+  jasper:
+    build:
+      context: .
+      dockerfile: docker/jasper/Dockerfile
+    image: grafiexpress-jasper:latest
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-grafiexpress}
+      DB_USER: ${DB_USER:-grafiexpress}
+      DB_PASSWORD: ${DB_PASSWORD}
+      TZ: America/Asuncion
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    logging: *default-logging
 
 networks:
   backend:

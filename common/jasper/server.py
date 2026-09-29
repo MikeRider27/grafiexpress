@@ -1,3 +1,4 @@
+"""OBSOLETO: reemplazado por docker/jasper/ReportServer.java (ver readme). No se usa."""
 import SocketServer
 import pickle
 import sys

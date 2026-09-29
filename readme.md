@@ -11,6 +11,7 @@ Requisitos: Docker (con Compose v2) y `make`.
 
 ```
 navegador → nginx (:APP_PORT, 8002 por defecto) → web (gunicorn :8000) → db (PostgreSQL 12)
+                                                          └→ jasper (PDFs) → db
 ```
 
 | Servicio | Qué hace | Persistencia |
@@ -18,6 +19,7 @@ navegador → nginx (:APP_PORT, 8002 por defecto) → web (gunicorn :8000) → d
 | `db` | PostgreSQL **interno** del stack. No publica puertos: solo lo ve `web` por la red interna `backend`. | volumen `grafiexpress_pgdata` |
 | `web` | Django + gunicorn. Al arrancar espera a la base, corre `migrate` y `collectstatic` solo. | volúmenes `static` y `media` |
 | `nginx` | Proxy reverso; sirve `/static/` y `/media/` directamente. | — |
+| `jasper` | Genera los PDF de facturas y remisiones (JasperReports, Java 8). Solo red interna. | — |
 
 Los datos sobreviven a `make down` / reinicios; solo se borran con `make reset-db`
 o `docker compose down -v`.
@@ -90,10 +92,20 @@ conectarse con pgAdmin/DBeaver. Comandos que escriben archivos en el repo
 
 ### Servicio de reportes (JasperReports)
 
-El servicio de reportes está **deshabilitado** en `docker-compose.yml`. El
-script que necesita (`common/jasper/server.py`) es Jython, no Python normal,
-y requiere una imagen con JDK que todavía no está armada. Ver los comentarios
-en `docker-compose.yml` para el detalle de qué falta.
+Las facturas y remisiones (formato triplicado para formulario preimpreso) se
+generan con JasperReports en el contenedor `jasper`:
+
+- `docker/jasper/ReportServer.java`: servicio HTTP en Java 8 que carga los
+  `.jasper` de `common/jasper/` (JasperReports 3.0.0, las mismas librerías que
+  usaba el servidor original) y consulta directo la base `db`.
+- `common/jasper/conector.py`: cliente HTTP que usa Django (`JASPER_URL`).
+
+`common/jasper/server.py` (Jython + socket + pickle) quedó **obsoleto**: no
+funcionaba con Python 3 y ya no se usa.
+
+Si se modifica un reporte en iReport, recompilar el `.jasper` con
+JasperReports 3.0.x, copiarlo a `common/jasper/` y reconstruir:
+`docker compose up -d --build jasper`. Errores: `make logs s=jasper`.
 
 ## Correr sin Docker (bare-metal)
 
